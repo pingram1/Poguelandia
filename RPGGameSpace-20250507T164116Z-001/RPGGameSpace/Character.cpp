@@ -22,43 +22,43 @@ Character::Character(string _name) {
     name = _name;
 }
 
-string Character::getName() {
+string Character::getName() const {
     return name;
 }
 
-string Character::getCharacterType() {
+string Character::getCharacterType() const {
     return characterType;
 }
 
-string Character::getAttackType() {
+string Character::getAttackType() const {
     return attackType;
 }
 
-int Character::getLevel() {
+int Character::getLevel() const {
     return level;
 }
 
-int Character::getMaxArmor() {
+int Character::getMaxArmor() const {
     return maxArmor;
 }
 
-int Character::getCurrArmor() {
+int Character::getCurrArmor() const {
     return currArmor;
 }
 
-int Character::getMaxHealth() {
+int Character::getMaxHealth() const {
     return maxHealth;
 }
 
-int Character::getCurrHealth() {
+int Character::getCurrHealth() const {
     return currHealth;
 }
 
-int Character::getCurrXP() {
+int Character::getCurrXP() const {
     return currXP;
 }
 
-int Character::getMaxXP() {
+int Character::getMaxXP() const {
     return maxXP;
 }
         

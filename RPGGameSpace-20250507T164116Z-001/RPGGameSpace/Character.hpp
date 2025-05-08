@@ -32,16 +32,16 @@ class Character {
     public:
         Character();
         Character(string);
-        string getName();
-        string getCharacterType();
-        string getAttackType();
-        int getLevel();
-        int getMaxArmor();
-        int getCurrArmor();
-        int getMaxHealth();
-        int getCurrHealth();
-        int getCurrXP();
-        int getMaxXP();
+        string getName() const;
+        string getCharacterType() const;
+        string getAttackType() const;
+        int getLevel() const;
+        int getMaxArmor() const;
+        int getCurrArmor() const;
+        int getMaxHealth() const;
+        int getCurrHealth() const;
+        int getCurrXP() const;
+        int getMaxXP() const;
         void setName(string);
         void setCharacterType(string& characterType);
         void setAttackType(string);

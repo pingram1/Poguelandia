@@ -5,7 +5,10 @@
 //  Created by Pierre Ingram on 4/19/23.
 //
 
+// Menu.cpp (Refactored methods)
+
 #include "Menu.hpp"
+#include "UIUtils.hpp" // Include UIUtils header
 #include "Character.hpp"
 #include "Warrior.hpp"
 #include "Wizard.hpp"
@@ -19,11 +22,10 @@
 #include <thread>
 #include <iomanip>
 #include <iostream>
-#include "Utils.hpp"
 
 using namespace std;
 
-// ANSI color codes
+// ANSI color codes (These will eventually be replaced by GUI elements, but for now, keep them for console compatibility)
 #define RESET "\033[0m"
 #define RED "\033[31m"
 #define GREEN "\033[32m"
@@ -31,68 +33,16 @@ using namespace std;
 #define CYAN "\033[36m"
 #define BOLD "\033[1m"
 
-// Function to display a health bar
+// Function to display a health bar (This function should also be refactored to use UIUtils or a separate GUI component later)
 void displayHealthBar(const string& name, int hp, int maxHp) {
     int barWidth = 20;
     int filledBars = (hp * barWidth) / maxHp;
     int emptyBars = barWidth - filledBars;
-    cout << BOLD << name << " HP: [" << GREEN;
-    for (int i = 0; i < filledBars; i++) cout << "|";
-    cout << RED;
-    for (int i = 0; i < emptyBars; i++) cout << "|";
-    cout << RESET << "] " << hp << "/" << maxHp << endl;
-}
-
-void Menu::MainMenu() {
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                          Welcome to Poguelandia, Traveler.                            |" << endl;
-    cout << "|                                  DARE to Adventure!                                   |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                     1. New Game                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                     2. Load Game                                      |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                  3. View Characters                                   |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                       4. Quit                                         |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                               by PI   |" << endl;
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << endl;
-}
-
-void Menu::NewGameMenu() {
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                              Select your character class:                             |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                           Warrior - Special Ability: War Cry                          |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                          Wizard - Special Ability: Mystic Heal                        |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                   Healer - Special Ability: First Aid, Chronic Abrasion               |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                        Assassin - Special Ability: Sneaky Quick                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                          Quit                                         |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                               by PI   |" << endl;
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << endl;
+    UIUtils::displayText(string(BOLD) + name + " HP: [" + string(GREEN));
+    for (int i = 0; i < filledBars; i++) UIUtils::displayText("|");
+    UIUtils::displayText(string(RED));
+    for (int i = 0; i < emptyBars; i++) UIUtils::displayText("|");
+    UIUtils::displayText(string(RESET) + "] " + to_string(hp) + "/" + to_string(maxHp));
 }
 
 void Menu::BaseGameMenu(string menuName, string menuCharacterType) {
@@ -101,159 +51,102 @@ void Menu::BaseGameMenu(string menuName, string menuCharacterType) {
     Healer healer;
     Assassin assassin;
     
-    if(menuCharacterType == "Warrior") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Character Name: " << menuName << endl;
-        cout << "|  Character Type: " << menuCharacterType << endl;
-        cout << "|  Level: " << warrior.getLevel() << endl;
-        cout << "|  Armor: " << warrior.getCurrArmor() << " / " << warrior.getMaxArmor() << "   Health: " << warrior.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                  Welcome to Poguelandia, " << menuName << ". This is a land where" << endl;
-        cout << "|                 champions are made. Your objective is simple. Best every              |" << endl;
-        cout << "|               oppenent put before you and become champion. You can level up           |" << endl;
-        cout << "|                 your character and gain new abilities. Fight you way to               |" << endl;
-        cout << "|                       the top and enjoy the riches of Poguelandia!                    |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                    Continue (Yes/No)?                                 |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
+    UIUtils::clearScreen(); // Clear screen for a fresh menu display
+
+    // Using Character* for polymorphism to avoid repeated code blocks
+    Character* displayChar = nullptr;
+    if (menuCharacterType == "Warrior") {
+        displayChar = &warrior;
+    } else if (menuCharacterType == "Wizard") {
+        displayChar = &wizard;
+    } else if (menuCharacterType == "Healer") {
+        displayChar = &healer;
+    } else if (menuCharacterType == "Assassin") {
+        displayChar = &assassin;
+    }
+
+    if (displayChar) {
+        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|  Character Name: " + menuName);
+        UIUtils::displayText("|  Character Type: " + menuCharacterType);
+        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                  Welcome to Poguelandia, " + menuName + ". This is a land where");
+        UIUtils::displayText("|                 champions are made. Your objective is simple. Best every              |");
+        UIUtils::displayText("|               oppenent put before you and become champion. You can level up           |");
+        UIUtils::displayText("|                 your character and gain new abilities. Fight you way to               |");
+        UIUtils::displayText("|                       the top and enjoy the riches of Poguelandia!                    |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                    Continue (Yes/No)?                                 |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                               by PI   |");
+        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    } else {
+        UIUtils::displayText("Error: Invalid character type for BaseGameMenu.");
     }
     
-    else if(menuCharacterType == "Wizard") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Character Name: " << menuName << endl;
-        cout << "|  Character Type: " << menuCharacterType << endl;
-        cout << "|  Level: " << wizard.getLevel() << endl;
-        cout << "|  Armor: " << wizard.getCurrArmor() << " / " << wizard.getMaxArmor() << "   Health: " << wizard.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                  Welcome to Poguelandia, " << menuName << ". This is a land where" << endl;
-        cout << "|                 champions are made. Your objective is simple. Best every              |" << endl;
-        cout << "|               oppenent put before you and become champion. You can level up           |" << endl;
-        cout << "|                 your character and gain new abilities. Fight you way to               |" << endl;
-        cout << "|                       the top and enjoy the riches of Poguelandia!                    |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                    Continue (Yes/No)?                                 |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-    }
-    
-    else if(menuCharacterType == "Healer") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Character Name: " << menuName << endl;
-        cout << "|  Character Type: " << menuCharacterType << endl;
-        cout << "|  Level: " << healer.getLevel() << endl;
-        cout << "|  Armor: " << healer.getCurrArmor() << " / " << healer.getMaxArmor() << "   Health: " << healer.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                  Welcome to Poguelandia, " << menuName << ". This is a land where" << endl;
-        cout << "|                 champions are made. Your objective is simple. Best every              |" << endl;
-        cout << "|               oppenent put before you and become champion. You can level up           |" << endl;
-        cout << "|                 your character and gain new abilities. Fight you way to               |" << endl;
-        cout << "|                       the top and enjoy the riches of Poguelandia!                    |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                    Continue (Yes/No)?                                 |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-    }
-    
-    else if(menuCharacterType == "Assassin") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Character Name: " << menuName << endl;
-        cout << "|  Character Type: " << menuCharacterType << endl;
-        cout << "|  Level: " << assassin.getLevel() << endl;
-        cout << "|  Armor: " << assassin.getCurrArmor() << " / " << assassin.getMaxArmor() << "   Health: " << assassin.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                  Welcome to Poguelandia, " << menuName << ". This is a land where" << endl;
-        cout << "|                 champions are made. Your objective is simple. Best every              |" << endl;
-        cout << "|               oppenent put before you and become champion. You can level up           |" << endl;
-        cout << "|                 your character and gain new abilities. Fight you way to               |" << endl;
-        cout << "|                       the top and enjoy the riches of Poguelandia!                    |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                    Continue (Yes/No)?                                 |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-    }
-    
-    cout << endl;
+    UIUtils::displayText("");
 }
 
 void Menu::QuitMenu() {
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                            Are you sure you want to quit?                             |" << endl;
-    cout << "|                                       (Yes/No)?                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                               by PI   |" << endl;
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << endl;
+    UIUtils::clearScreen();
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                            Are you sure you want to quit?                             |");
+    UIUtils::displayText("|                                       (Yes/No)?                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                               by PI   |");
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("");
 }
 
 void Menu::QuitMenu2() {
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                          Thanks for playing, see you soon!                            |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                                       |" << endl;
-    cout << "|                                                                               by PI   |" << endl;
-    cout << "*---------------------------------------------------------------------------------------*" << endl;
-    cout << endl;
+    UIUtils::clearScreen();
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                          Thanks for playing, see you soon!                            |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                               by PI   |");
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("");
 }
 
 void Menu::BattleMenu1(string menuCharacterType) {
@@ -262,103 +155,66 @@ void Menu::BattleMenu1(string menuCharacterType) {
     Healer healer;
     Assassin assassin;
     
+    UIUtils::clearScreen(); // Clear screen for a fresh menu display
+
+    Character* displayChar = nullptr;
+    string specialAbilityInfo = "";
+
     if(menuCharacterType == "Warrior") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Level: " << warrior.getLevel()                                                        << endl;
-        cout << "|  Armor: " << warrior.getCurrArmor() << " / " << warrior.getMaxArmor() << "   Health: " << warrior.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                 Before you go into battle, we thought you should know                 |" << endl;
-        cout << "|                your character's stats and abilities. It looks like you                |" << endl;
-        cout << "|                                 choose to be a " << menuCharacterType << "                                |" << endl;
-        cout << "|                          Great pick, very fast, very powerful.                        |" << endl;
-        cout << "|                  If you're wondering if you have any special abilites,                |" << endl;
-        cout << "|                      you do! Warriors have a War Cry; when your HP                    |" << endl;
-        cout << "|                      becomes 250 or lower, you deal double damage.                    |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                Now it's time for battle!                              |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
+        displayChar = &warrior;
+        specialAbilityInfo = R"(                      you do! Warriors have a War Cry; when your HP                    
+                      becomes 250 or lower, you deal double damage.                    )";
     }
-    
     else if(menuCharacterType == "Wizard") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Level: " << wizard.getLevel()                                                        << endl;
-        cout << "|  Armor: " << wizard.getCurrArmor() << " / " << wizard.getMaxArmor() << "   Health: " << wizard.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                 Before you go into battle, we thought you should know                 |" << endl;
-        cout << "|                your character's stats and abilities. It looks like you                |" << endl;
-        cout << "|                                 choose to be a " << menuCharacterType << "                                 |" << endl;
-        cout << "|               Very useful for players that enjoy a strong ranged attack.              |" << endl;
-        cout << "|                  If you're wondering if you have any special abilites,                |" << endl;
-        cout << "|                      you do! Wizards have Mystic Heal; you receive                    |" << endl;
-        cout << "|                    50 HP and 10 armor points with every light attack.                 |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                Now it's time for battle!                              |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
+        displayChar = &wizard;
+        specialAbilityInfo = R"(                      you do! Wizards have Mystic Heal; you receive                    
+                    50 HP and 10 armor points with every light attack.                 )";
     }
-    
     else if(menuCharacterType == "Healer") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Level: " << healer.getLevel()                                                        << endl;
-        cout << "|  Armor: " << healer.getCurrArmor() << " / " << healer.getMaxArmor() << "   Health: " << healer.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                 Before you go into battle, we thought you should know                 |" << endl;
-        cout << "|                your character's stats and abilities. It looks like you                |" << endl;
-        cout << "|                                 choose to be a " << menuCharacterType << "                                 |" << endl;
-        cout << "|                          Very quick, extremely high defense.                          |" << endl;
-        cout << "|                  If you're wondering if you have any special abilites,                |" << endl;
-        cout << "|                 you do! Healers have 2, First Aid and Chronic Abrasion.               |" << endl;
-        cout << "|       You regain 10 HP with every move and deal 100% damage every other attack.       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                Now it's time for battle!                              |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
+        displayChar = &healer;
+        specialAbilityInfo = R"(                 you do! Healers have 2, First Aid and Chronic Abrasion.               
+       You regain 10 HP with every move and deal 100% damage every other attack.       )";
     }
-    
     else if(menuCharacterType == "Assassin") {
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|  Level: " << assassin.getLevel()                                                        << endl;
-        cout << "|  Armor: " << assassin.getCurrArmor() << " / " << assassin.getMaxArmor() << "   Health: " << assassin.getCurrHealth() << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                 Before you go into battle, we thought you should know                 |" << endl;
-        cout << "|                your character's stats and abilities. It looks like you                |" << endl;
-        cout << "|                                 choose to be a " << menuCharacterType << "                               |" << endl;
-        cout << "|                   Substitutes brute force for raw speed and agility.                  |" << endl;
-        cout << "|                  If you're wondering if you have any special abilites,                |" << endl;
-        cout << "|                 you do! Assassins have Sneaky Quick; every first attack               |" << endl;
-        cout << "|                       deals double (because they strike twice).                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                Now it's time for battle!                              |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                                       |" << endl;
-        cout << "|                                                                               by PI   |" << endl;
-        cout << "*---------------------------------------------------------------------------------------*" << endl;
+        displayChar = &assassin;
+        specialAbilityInfo = R"(                 you do! Assassins have Sneaky Quick; every first attack               
+                       deals double (because they strike twice).                       )";
     }
     
-    cout << endl;
+    if (displayChar) {
+        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                 Before you go into battle, we thought you should know                 |");
+        UIUtils::displayText("|                your character's stats and abilities. It looks like you                |");
+        UIUtils::displayText("|                                 choose to be a " + menuCharacterType + "                                |");
+        if (menuCharacterType == "Warrior") {
+            UIUtils::displayText("|                          Great pick, very fast, very powerful.                        |");
+        } else if (menuCharacterType == "Wizard") {
+            UIUtils::displayText("|               Very useful for players that enjoy a strong ranged attack.              |");
+        } else if (menuCharacterType == "Healer") {
+            UIUtils::displayText("|                          Very quick, extremely high defense.                          |");
+        } else if (menuCharacterType == "Assassin") {
+            UIUtils::displayText("|                   Substitutes brute force for raw speed and agility.                  |");
+        }
+        UIUtils::displayText("|                  If you're wondering if you have any special abilites,                |");
+        UIUtils::displayText(specialAbilityInfo);
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                Now it's time for battle!                              |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                               by PI   |");
+        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    } else {
+        UIUtils::displayText("Error: Invalid character type for BattleMenu1.");
+    }
+    
+    UIUtils::displayText("");
 }
 
 void Menu::BattleMenu2(string menuCharacterType) {
