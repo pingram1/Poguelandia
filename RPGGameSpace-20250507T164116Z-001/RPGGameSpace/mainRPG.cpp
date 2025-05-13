@@ -21,6 +21,7 @@
 #include "Enemy.hpp"
 #include "Menu.hpp"
 #include "Utils.hpp"
+#include "UIUtils.hpp"
 
 using namespace std;
 
@@ -167,7 +168,7 @@ int CPUBattle(string enemyCharacterType, string enemyAction) {
     
     // Check if enemyAction is one of the expected values
     if((enemyAction != "Light" && enemyAction != "Normal" && enemyAction != "Heavy") || (enemyAction != "light" && enemyAction != "normal" && enemyAction != "heavy")) {
-        cout << "Error: Invalid action type '" << enemyAction << "'" << endl;
+        UIUtils::displayText("Error: Invalid action type '" + enemyAction + "'");
         return -1;  // Return an error value
     }
     
@@ -224,7 +225,7 @@ int main() {
     
     // Check if the user wants to quit
     do {
-        cout << "Enter your choice: ";
+        UIUtils::displayText("Enter your choice: ");
         // Clear any previous failed state and leftover characters
         cin.clear();
         while (cin.peek() == '\n') cin.ignore();
@@ -233,22 +234,22 @@ int main() {
         if (!(cin >> menuInput1)) {
             cin.clear(); // Clear error flag
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-            cout << "Invalid input. Please enter a number from the menu." << endl;
+            UIUtils::displayText("Invalid input. Please enter a number from the menu.");
             continue;
         }
         
         switch(menuInput1) {
             case 1:
                 menu.NewGameMenu();
-                cout << "Enter character type:" << endl;
+                UIUtils::displayText("Enter character type:");
                 cin >> characterType;
                 cin.ignore();
-                cout << endl;
+                UIUtils::displayText("");
                 
                 if(characterType != "Quit") {
-                    cout << "Enter Name:" << endl;
+                    UIUtils::displayText("Enter Name:");
                     getline(cin, name);
-                    cout << endl;
+                    UIUtils::displayText("");
 
                     // Create the concrete player object based on the input.
                     if(characterType == "Warrior")
@@ -261,7 +262,7 @@ int main() {
                         player = new Assassin(name);
 
                     if(player == nullptr) {
-                        cout << "Error creating player object." << endl;
+                        UIUtils::displayText("Error creating player object.");
                         return 1;
                     }
 
@@ -294,7 +295,7 @@ int main() {
                     menu.BattleMenu1(characterType);
                     menu.BattleMenu2(characterType);
                     
-                    cout << "Flip a coin (Select heads or tails)" << endl;
+                    UIUtils::displayText("Flip a coin (Select heads or tails)");
                     cin >> coinToss;
                     
                     // Determines who makes the first move (User or CPU)
@@ -326,7 +327,7 @@ int main() {
                         enemyAction = enemy.randomizeEnemyActions();
                         int enemyCurrArmor = enemy.getCurrArmor();
                         
-                        cout << "Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]" << endl;
+                        UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                         cin >> action;
                         
                         //Gets probability of performing this attack based on the attack type
@@ -379,23 +380,23 @@ int main() {
                         bool attackExecuted2 = attackVSattack(attackProbability, enemyAttackProbability);
                         
                         //Shows percentages in game to see which action will be executed in combat
-                        cout << endl;
+                        UIUtils::displayText("");
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
-                            cout << "Attack: " << attackProbability << " vs. Enemy Attack: " << enemyAttackProbability << endl;
+                            UIUtils::displayText("Attack: " + to_string(attackProbability) + " vs. Enemy Attack: " + to_string(enemyAttackProbability));
                         }
                         
                         else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
-                            cout << "Attack: " << attackProbability << " vs. Enemy Defend: " << enemyDefendProbability << endl;
+                            UIUtils::displayText("Attack: " + to_string(attackProbability) + " vs. Enemy Defend: " + to_string(enemyDefendProbability));
                         }
                         
                         else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
-                            cout << "Defend: " << defendProbability << " vs. Enemy Attack: " << enemyAttackProbability << endl;
+                            UIUtils::displayText("Defend: " + to_string(defendProbability) + " vs. Enemy Attack: " + to_string(enemyAttackProbability));
                         }
                         
                         else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
-                            cout << "Defend: " << defendProbability << " vs. Enemy Defend: " << enemyDefendProbability << endl;
+                            UIUtils::displayText("Defend: " + to_string(defendProbability) + " vs. Enemy Defend: " + to_string(enemyDefendProbability));
                         }
-                        cout << endl;
+                        UIUtils::displayText("");
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                             if(attackExecuted == true) {
@@ -624,7 +625,7 @@ int main() {
                             enemyAttackProbability = enemy.attackProbability(enemyAction);
                             enemyDefendProbability = enemy.defend(enemyAction);
                             
-                            cout << "Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]" << endl;
+                            UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                             cin >> action;
                             
                             if(action == "Light" || action == "Normal" || action == "Heavy") {
@@ -668,23 +669,23 @@ int main() {
                             defendExecuted = userDefendExecuted(defendProbability, enemyAttackProbability);
                             attackExecuted2 = attackVSattack(attackProbability, enemyAttackProbability);
                             
-                            cout << endl;
+                            UIUtils::displayText("");
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
-                                cout << "Attack chance: " << attackProbability << " vs. Enemy Attack chance: " << enemyAttackProbability << endl;
+                                UIUtils::displayText("Attack chance: " + to_string(attackProbability) + " vs. Enemy Attack chance: " + to_string(enemyAttackProbability));
                             }
                             
                             else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
-                                cout << "Attack chance: " << attackProbability << " vs. Enemy Defend chance: " << enemyDefendProbability << endl;
+                                UIUtils::displayText("Attack chance: " + to_string(attackProbability) + " vs. Enemy Defend chance: " + to_string(enemyDefendProbability));
                             }
                             
                             else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
-                                cout << "Defend chance: " << defendProbability << " vs. Enemy Attack chance: " << enemyAttackProbability << endl;
+                                UIUtils::displayText("Defend chance: " + to_string(defendProbability) + " vs. Enemy Attack chance: " + to_string(enemyAttackProbability));
                             }
                             
                             else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
-                                cout << "Defend chance: " << defendProbability << " vs. Enemy Defend chance: " << enemyDefendProbability << endl;
+                                UIUtils::displayText("Defend chance: " + to_string(defendProbability) + " vs. Enemy Defend chance: " + to_string(enemyDefendProbability));
                             }
-                            cout << endl;
+                            UIUtils::displayText("");
                             
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                                 //User attack landed on CPU (defense), take health from CPU
@@ -919,7 +920,7 @@ int main() {
                     }
 
                     else {
-                        cout << "Invalid input" << endl;
+                        UIUtils::displayText("Invalid input");
                     }
                 }
                 
@@ -935,7 +936,7 @@ int main() {
             case 3:
                 menu.NewGameMenu();
                 
-                cout << "Enter character type:" << endl;
+                UIUtils::displayText("Enter character type:");
                 cin >> characterType;
                 
                 if(characterType != "Quit") {

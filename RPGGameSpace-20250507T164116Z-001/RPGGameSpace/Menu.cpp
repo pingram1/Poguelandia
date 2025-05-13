@@ -758,10 +758,10 @@ void Menu::SavedGameMenu(Character &player) {
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
-    UIUtils::displayText("|  Type       : " + player.getCharacterType());
-    UIUtils::displayText("|  Level      : " + to_string(player.getLevel()));
-    UIUtils::displayText("|  Health     : " + to_string(player.getCurrHealth()) + " / " + to_string(player.getMaxHealth()));
-    UIUtils::displayText("|  Armor      : " + to_string(player.getCurrArmor()) + " / " + to_string(player.getMaxArmor()));
+    UIUtils::displayText("|  Type      : " + player.getCharacterType());
+    UIUtils::displayText("|  Level     : " + to_string(player.getLevel()));
+    UIUtils::displayText("|  Health    : " + to_string(player.getCurrHealth()) + " / " + to_string(player.getMaxHealth()));
+    UIUtils::displayText("|  Armor     : " + to_string(player.getCurrArmor()) + " / " + to_string(player.getMaxArmor()));
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
