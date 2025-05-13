@@ -45,6 +45,59 @@ void displayHealthBar(const string& name, int hp, int maxHp) {
     UIUtils::displayText(string(RESET) + "] " + to_string(hp) + "/" + to_string(maxHp));
 }
 
+void Menu::MainMenu() {
+    UIUtils::clearScreen();
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                          Welcome to Poguelandia, Traveler.                            |");
+    UIUtils::displayText("|                                  DARE to Adventure!                                   |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                     1. New Game                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                     2. Load Game                                      |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                  3. View Characters                                   |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                       4. Quit                                         |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                               by PI   |");
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("");
+}
+
+void Menu::NewGameMenu() {
+    UIUtils::clearScreen();
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                              Select your character class:                             |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                           Warrior - Special Ability: War Cry                          |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                          Wizard - Special Ability: Mystic Heal                        |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                   Healer - Special Ability: First Aid, Chronic Abrasion               |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                        Assassin - Special Ability: Sneaky Quick                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                          Quit                                         |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                               by PI   |");
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("");
+}
+
 void Menu::BaseGameMenu(string menuName, string menuCharacterType) {
     Warrior warrior;
     Wizard wizard;
