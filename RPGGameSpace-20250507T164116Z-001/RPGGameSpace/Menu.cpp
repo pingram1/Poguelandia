@@ -98,33 +98,16 @@ void Menu::NewGameMenu() {
     UIUtils::displayText("");
 }
 
-void Menu::BaseGameMenu(string menuName, string menuCharacterType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
+void Menu::BaseGameMenu(string menuName, string menuCharacterType, Character* player) {
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    // Using Character* for polymorphism to avoid repeated code blocks
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|  Character Name: " + menuName);
         UIUtils::displayText("|  Character Type: " + menuCharacterType);
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -202,43 +185,33 @@ void Menu::QuitMenu2() {
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu1(string menuCharacterType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
+void Menu::BattleMenu1(string menuCharacterType, Character* player) {
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    Character* displayChar = nullptr;
     string specialAbilityInfo = "";
 
     if(menuCharacterType == "Warrior") {
-        displayChar = &warrior;
         specialAbilityInfo = R"(                      you do! Warriors have a War Cry; when your HP                    
                       becomes 250 or lower, you deal double damage.                    )";
     }
     else if(menuCharacterType == "Wizard") {
-        displayChar = &wizard;
         specialAbilityInfo = R"(                      you do! Wizards have Mystic Heal; you receive                    
                     50 HP and 10 armor points with every light attack.                 )";
     }
     else if(menuCharacterType == "Healer") {
-        displayChar = &healer;
         specialAbilityInfo = R"(                 you do! Healers have 2, First Aid and Chronic Abrasion.               
        You regain 10 HP with every move and deal 100% damage every other attack.       )";
     }
     else if(menuCharacterType == "Assassin") {
-        displayChar = &assassin;
         specialAbilityInfo = R"(                 you do! Assassins have Sneaky Quick; every first attack               
                        deals double (because they strike twice).                       )";
     }
     
-    if (displayChar) {
+    if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -270,30 +243,14 @@ void Menu::BattleMenu1(string menuCharacterType) {
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu2(string menuCharacterType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
+void Menu::BattleMenu2(string menuCharacterType, Character* player) {
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                          *                         *                                  |");
@@ -424,42 +381,23 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu3(string menuCharacterType, int fightFirst) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    Enemy enemy;
+void Menu::BattleMenu3(string menuCharacterType, int fightFirst, Character* player, Enemy* enemy) {
+    UIUtils::clearScreen(); // Clear screen for a fresh menu display
     
     string battlePhrases = "";
-    
     if(fightFirst == 1) {
         battlePhrases = "Looks like you're fighting first, make a move";
     }
-    
     else if(fightFirst == 2) {
         battlePhrases = "Looks like the enemy gets to make the first move, respond accordingly";
     }
-    
-    UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player && enemy) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(displayChar->getCurrArmor()) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(displayChar->getCurrHealth()));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy.getCurrArmor()) + " / " + to_string(enemy.getMaxArmor()) + "   Health: " + to_string(enemy.getCurrHealth()));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                          *                         *                                  |");
         UIUtils::displayText("|    *        *                  *        *                                           * |");
@@ -483,46 +421,23 @@ void Menu::BattleMenu3(string menuCharacterType, int fightFirst) {
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu4(string menuCharacterType, bool attackExecuted, int currHealth, int enemyCurrHealth, int currArmor, int enemyCurrArmor) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    Enemy enemy;
+void Menu::BattleMenu4(string menuCharacterType, bool attackExecuted, Character* player, Enemy* enemy) {
+    UIUtils::clearScreen(); // Clear screen for a fresh menu display
     
     string battlePhrases = "";
-    
     if(attackExecuted != false) {
         battlePhrases = "Great strike! Keep the pressure on 'em";
     }
-    
     else {
         battlePhrases = "Not every strike has to land for you to damage your opponent";
     }
 
-    if(enemyCurrHealth < 0) {
-        enemyCurrHealth = 0;
-    }
-    
-    UIUtils::clearScreen(); // Clear screen for a fresh menu display
-
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player && enemy) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(currArmor) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(currHealth));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemyCurrArmor) + " / " + to_string(enemy.getMaxArmor()) + "   Health: " + to_string(enemyCurrHealth));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                          *                         *                                  |");
         UIUtils::displayText("|    *        *                  *        *                                           * |");
@@ -546,13 +461,7 @@ void Menu::BattleMenu4(string menuCharacterType, bool attackExecuted, int currHe
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu5(string menuCharacterType, string action, bool defendExecuted, int currHealth, int enemyCurrHealth, int currArmor, int enemyCurrArmor) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    Enemy enemy;
-    
+void Menu::BattleMenu5(string menuCharacterType, string action, bool defendExecuted, Character* player, Enemy* enemy) {
     string battlePhrases = "";
     
     if(defendExecuted == true && action == "Block") {
@@ -576,29 +485,14 @@ void Menu::BattleMenu5(string menuCharacterType, string action, bool defendExecu
         battlePhrases = "Ouch. They got you pretty good, maybe you should heal or something";
     }
 
-    /*if(currHealth < 0) {
-        currHealth = 0;
-    }*/
-    
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player && enemy) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(currArmor) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(currHealth));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemyCurrArmor) + " / " + to_string(enemy.getMaxArmor()) + "   Health: " + to_string(enemyCurrHealth));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                          *                         *                                  |");
         UIUtils::displayText("|    *        *                  *        *                                           * |");
@@ -622,13 +516,7 @@ void Menu::BattleMenu5(string menuCharacterType, string action, bool defendExecu
     UIUtils::displayText("");
 }
 
-void Menu::BattleMenu6(string menuCharacterType, bool doubleDefend, int currHealth, int enemyCurrHealth, int currArmor, int enemyCurrArmor) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    Enemy enemy;
-    
+void Menu::BattleMenu6(string menuCharacterType, bool doubleDefend, Character* player, Enemy* enemy) {
     string battlePhrases = "";
     
     if(doubleDefend != false) {
@@ -637,23 +525,12 @@ void Menu::BattleMenu6(string menuCharacterType, bool doubleDefend, int currHeal
     
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    Character* displayChar = nullptr;
-    if (menuCharacterType == "Warrior") {
-        displayChar = &warrior;
-    } else if (menuCharacterType == "Wizard") {
-        displayChar = &wizard;
-    } else if (menuCharacterType == "Healer") {
-        displayChar = &healer;
-    } else if (menuCharacterType == "Assassin") {
-        displayChar = &assassin;
-    }
-
-    if (displayChar) {
+    if (player && enemy) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(displayChar->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(currArmor) + " / " + to_string(displayChar->getMaxArmor()) + "   Health: " + to_string(currHealth));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemyCurrArmor) + " / " + to_string(enemy.getMaxArmor()) + "   Health: " + to_string(enemyCurrHealth));
+        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
+        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                          *                         *                                  |");
         UIUtils::displayText("|    *        *                  *        *                                           * |");

@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <limits>
 #include "Character.hpp"
+#include "BattleManager.hpp"
 #include "Warrior.hpp"
 #include "Wizard.hpp"
 #include "Healer.hpp"
@@ -189,13 +190,13 @@ int main() {
 
     showTitle();
     Menu menu;
+    BattleManager battleManager;
     Character* player = nullptr;
     Wizard wizard;
     Warrior warrior;
     Assassin assassin;
     Healer healer;
     Enemy enemy;
-    
     int menuInput1;
     string menuInput2;
     string coinToss;
@@ -213,7 +214,6 @@ int main() {
     unsigned int enemyDefendProbability = 0;
     int attackValue = 0;
     int enemyAttackValue = 0;
-    
     int currHealth = 0;
     int currArmor = 0;
     int enemyCurrHealth = enemy.getCurrHealth();
@@ -400,22 +400,7 @@ int main() {
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                             if(attackExecuted == true) {
-                                attackValue = firstHit(fightFirst, characterType, enemyAction, enemyCharacterType, action);
-                                
-                                if((enemyCurrArmor - attackValue) > 0) {
-                                    enemyCurrArmor = enemy.decreaseArmor(characterType, attackValue, action);
-                                }
-                                
-                                else if((enemyCurrArmor - attackValue) < 0) {
-                                    int enemyBattleDiff = enemyCurrArmor - attackValue;
-                                    enemyCurrArmor = 0;
-                                    enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action) + enemyBattleDiff;
-                                }
-                                
-                                else {
-                                    enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action);
-                                }
-                                
+                                battleManager.handleAttack(*player, enemy, action);
                                 menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                             }
                             
@@ -426,115 +411,13 @@ int main() {
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                             if(attackExecuted2 == true) {
-                                attackValue = firstHit(fightFirst, characterType, enemyAction, enemyCharacterType, action);
-                                
-                                if((enemyCurrArmor - attackValue) > 0) {
-                                    enemyCurrArmor = enemy.decreaseArmor(characterType, attackValue, action);
-                                }
-                                
-                                else if((enemyCurrArmor - attackValue) < 0) {
-                                    int enemyBattleDiff = enemyCurrArmor - attackValue;
-                                    enemyCurrArmor = 0;
-                                    enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action) + enemyBattleDiff;
-                                }
-                                
-                                else {
-                                    enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action);
-                                }
-
+                                battleManager.handleAttack(*player, enemy, action);
                                 menu.BattleMenu4(characterType, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                             }
                              
                             else if(attackExecuted2 == false) {
-                                enemyAttackValue = firstHit(fightFirst, characterType, enemyAction, enemyCharacterType, action);
-                                
-                                if((currArmor - enemyAttackValue) > 0) {
-                                    if(characterType == "Warrior") {
-                                        currArmor = warrior.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //warrior.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currArmor = wizard.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //wizard.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currArmor = healer.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //healer.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currArmor = assassin.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //assassin.setCurrArmor(currArmor);
-                                    }
-                                }
-                                
-                                else if((currArmor - enemyAttackValue) < 0) {
-                                    int battleDiff = currArmor - enemyAttackValue;
-                                    
-                                    if(characterType == "Warrior") {
-                                        currArmor = 0;
-                                        currHealth = warrior.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currArmor = 0;
-                                        currHealth = wizard.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currArmor = 0;
-                                        currHealth = healer.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currArmor = 0;
-                                        currHealth = assassin.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                }
-                                
-                                else {
-                                    if(characterType == "Warrior") {
-                                        currHealth = warrior.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //warrior.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currHealth = wizard.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //wizard.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currHealth = healer.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //healer.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currHealth = assassin.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //assassin.setCurrHealth(currHealth);
-                                    }
-                                }
-                                    
+                                battleManager.handleAttack(*player, enemy, action); 
                                 menu.BattleMenu5(characterType, action, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
-                            }
-                        }
-                        
-                        else if(action == "Block" || action == "Parry" || action == "Evade") {
-                            if(characterType == "Warrior") {
-                                defendProbability = warrior.defend(action);
-                            }
-                            
-                            else if(characterType == "Wizard") {
-                                defendProbability = wizard.defend(action);
-                            }
-                            
-                            else if(characterType == "Healer") {
-                                defendProbability = healer.defend(action);
-                            }
-                            
-                            else if(characterType == "Assassin") {
-                                defendProbability = assassin.defend(action);
                             }
                         }
                         
@@ -544,76 +427,7 @@ int main() {
                             }
                             
                             else if(defendExecuted == false) {
-                                enemyAttackValue = firstHit(fightFirst, characterType, enemyAction, enemyCharacterType, action);
-                                
-                                if((currArmor - enemyAttackValue) > 0) {
-                                    if(characterType == "Warrior") {
-                                        currArmor = warrior.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //warrior.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currArmor = wizard.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //wizard.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currArmor = healer.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //healer.setCurrArmor(currArmor);
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currArmor = assassin.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //assassin.setCurrArmor(currArmor);
-                                    }
-                                }
-                                
-                                else if((currArmor - enemyAttackValue) < 0) {
-                                    int battleDiff = currArmor - enemyAttackValue;
-                                    
-                                    if(characterType == "Warrior") {
-                                        currArmor = 0;
-                                        currHealth = warrior.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currArmor = 0;
-                                        currHealth = wizard.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currArmor = 0;
-                                        currHealth = healer.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currArmor = 0;
-                                        currHealth = assassin.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                    }
-                                }
-                                
-                                else {
-                                    if(characterType == "Warrior") {
-                                        currHealth = warrior.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //warrior.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Wizard") {
-                                        currHealth = wizard.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //wizard.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Healer") {
-                                        currHealth = healer.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //healer.setCurrHealth(currHealth);
-                                    }
-                                    
-                                    else if(characterType == "Assassin") {
-                                        currHealth = assassin.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                        //assassin.setCurrHealth(currHealth);
-                                    }
-                                }
-                                
+                                battleManager.handleAttack(*player, enemy, action);
                                 menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                             }
                         }
@@ -621,12 +435,9 @@ int main() {
                         // 
                         while(hasHealth(currHealth, enemyCurrHealth) == true) {
                             enemyAction = enemy.randomizeEnemyActions();
-                            enemyAttackValue = enemy.attack(enemyAction, enemyCharacterType);
-                            enemyAttackProbability = enemy.attackProbability(enemyAction);
-                            enemyDefendProbability = enemy.defend(enemyAction);
                             
                             UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
-                            cin >> action;
+                            cin >> action; // ... (Get user input)
                             
                             if(action == "Light" || action == "Normal" || action == "Heavy") {
                                 attackType = action;
@@ -645,25 +456,7 @@ int main() {
                                 else if(characterType == "Assassin") {
                                     attackProbability = assassin.attackProbability(attackType);
                                 }
-                            }
-                            
-                            if(action == "Block" || action == "Parry" || action == "Evade") {
-                                if(characterType == "Warrior") {
-                                    defendProbability = warrior.defend(action);
-                                }
-                                
-                                else if(characterType == "Wizard") {
-                                    defendProbability = wizard.defend(action);
-                                }
-                                
-                                else if(characterType == "Healer") {
-                                    defendProbability = healer.defend(action);
-                                }
-                                
-                                else if(characterType == "Assassin") {
-                                    defendProbability = assassin.defend(action);
-                                }
-                            }
+                            }    
                             
                             attackExecuted = userAttackLanded(attackProbability, enemyDefendProbability);
                             defendExecuted = userDefendExecuted(defendProbability, enemyAttackProbability);
@@ -690,22 +483,7 @@ int main() {
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                                 //User attack landed on CPU (defense), take health from CPU
                                 if(attackExecuted == true) {
-                                    attackValue = firstHit(fightFirst, characterType, enemyCharacterType, action, enemyAction);
-                                    
-                                    if((enemyCurrArmor - attackValue) > 0) {
-                                        enemyCurrArmor = enemy.decreaseArmor(characterType, attackValue, action);
-                                    }
-                                    
-                                    else if((enemyCurrArmor - attackValue) < 0) {
-                                        int enemyBattleDiff = enemyCurrArmor - attackValue;
-                                        enemyCurrArmor = 0;
-                                        enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action) + enemyBattleDiff;
-                                    }
-                                    
-                                    else {
-                                        enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action);
-                                    }
-                                    
+                                    battleManager.handleAttack(*player, enemy, action);
                                     menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                                 }
                                 
@@ -718,96 +496,12 @@ int main() {
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                                 //User attack landed on CPU (offense), take health from CPU
                                 if(attackExecuted2 == true) {
-                                    attackValue = UserBattle(characterType, action);
-                                    
-                                    if((enemyCurrArmor - attackValue) > 0) {
-                                        enemyCurrArmor = enemy.decreaseArmor(characterType, attackValue, action);
-                                    }
-                                    
-                                    else if((enemyCurrArmor - attackValue) < 0) {
-                                        int enemyBattleDiff = enemyCurrArmor - attackValue;
-                                        enemyCurrArmor = 0;
-                                        enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action) + enemyBattleDiff;
-                                    }
-                                    
-                                    else {
-                                        enemyCurrHealth = enemy.decreaseHealth(characterType, attackValue, action);
-                                    }
-                                    
+                                    battleManager.handleAttack(*player, enemy, action);
                                     menu.BattleMenu4(characterType, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                                 }
                                 
                                 else if(attackExecuted2 == false) {
-                                    enemyAttackValue = CPUBattle(enemyCharacterType, enemyAction);
-                                    
-                                    if((currArmor - enemyAttackValue) > 0) {
-                                        if(characterType == "Warrior") {
-                                            currArmor = warrior.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //warrior.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currArmor = wizard.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //wizard.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currArmor = healer.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //healer.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currArmor = assassin.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //assassin.setCurrArmor(currArmor);
-                                        }
-                                    }
-                                    
-                                    else if((currArmor - enemyAttackValue) < 0) {
-                                        int battleDiff = currArmor - enemyAttackValue;
-                                        
-                                        if(characterType == "Warrior") {
-                                            currArmor = 0;
-                                            currHealth = warrior.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currArmor = 0;
-                                            currHealth = wizard.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currArmor = 0;
-                                            currHealth = healer.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currArmor = 0;
-                                            currHealth = assassin.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                    }
-                                    
-                                    else {
-                                        if(characterType == "Warrior") {
-                                            currHealth = warrior.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //warrior.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currHealth = wizard.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //wizard.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currHealth = healer.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //healer.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currHealth = assassin.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //assassin.setCurrHealth(currHealth);
-                                        }
-                                    }
-                                    
+                                    battleManager.handleAttack(*player, enemy, action);
                                     menu.BattleMenu5(characterType, action, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                                 }
                             }
@@ -819,76 +513,7 @@ int main() {
                                 }
                                 
                                 else if(defendExecuted == false) {
-                                    enemyAttackValue = CPUBattle(enemyCharacterType, enemyAction);
-                                    
-                                    if((currArmor - enemyAttackValue) > 0) {
-                                        if(characterType == "Warrior") {
-                                            currArmor = warrior.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //warrior.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currArmor = wizard.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //wizard.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currArmor = healer.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //healer.setCurrArmor(currArmor);
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currArmor = assassin.decreaseArmor(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //assassin.setCurrArmor(currArmor);
-                                        }
-                                    }
-                                    
-                                    else if((currArmor - enemyAttackValue) < 0) {
-                                        int battleDiff = currArmor - enemyAttackValue;
-                                        
-                                        if(characterType == "Warrior") {
-                                            currArmor = 0;
-                                            currHealth = warrior.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currArmor = 0;
-                                            currHealth = wizard.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currArmor = 0;
-                                            currHealth = healer.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currArmor = 0;
-                                            currHealth = assassin.decreaseHealth(characterType, attackValue, action) + battleDiff;
-                                        }
-                                    }
-                                    
-                                    else {
-                                        if(characterType == "Warrior") {
-                                            currHealth = warrior.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //warrior.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Wizard") {
-                                            currHealth = wizard.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //wizard.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Healer") {
-                                            currHealth = healer.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //healer.setCurrHealth(currHealth);
-                                        }
-                                        
-                                        else if(characterType == "Assassin") {
-                                            currHealth = assassin.decreaseHealth(enemyCharacterType, enemyAttackValue, enemyAction);
-                                            //assassin.setCurrHealth(currHealth);
-                                        }
-                                    }
-                                    
+                                    battleManager.handleAttack(*player, enemy, action);
                                     menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
                                 }
                             }
