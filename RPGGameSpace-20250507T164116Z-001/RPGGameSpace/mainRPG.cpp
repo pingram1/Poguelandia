@@ -288,19 +288,19 @@ int main() {
                     }
                 }
  
-                menu.BaseGameMenu(name, characterType);
+                menu.BaseGameMenu(name, characterType, player);
                 cin >> menuInput2;
                 
                 if(menuInput2 == "Yes" || menuInput2 == "yes") {
-                    menu.BattleMenu1(characterType);
-                    menu.BattleMenu2(characterType);
+                    menu.BattleMenu1(characterType, player);
+                    menu.BattleMenu2(characterType, player);
                     
                     UIUtils::displayText("Flip a coin (Select heads or tails)");
                     cin >> coinToss;
                     
                     // Determines who makes the first move (User or CPU)
                     if(coinToss == "Heads" || coinToss == "heads" || coinToss == "Tails" || coinToss == "tails") {
-                        menu.BattleMenu3(characterType, fightFirst);
+                        menu.BattleMenu3(characterType, fightFirst, player, &enemy);
                         
                         if(characterType == "Warrior") {
                             currHealth = warrior.getCurrHealth();
@@ -401,34 +401,34 @@ int main() {
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                             if(attackExecuted == true) {
                                 battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
                             }
                             
                             else if(attackExecuted == false) {
-                                menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
                             }
                         }
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                             if(attackExecuted2 == true) {
                                 battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu4(characterType, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu4(characterType, attackExecuted2, player, &enemy);
                             }
                              
                             else if(attackExecuted2 == false) {
                                 battleManager.handleAttack(*player, enemy, action); 
-                                menu.BattleMenu5(characterType, action, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu5(characterType, action, attackExecuted2, player, &enemy);
                             }
                         }
                         
                         else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                             if(defendExecuted == true) {
-                                menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
                             }
                             
                             else if(defendExecuted == false) {
                                 battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
                             }
                         }
 
@@ -484,12 +484,12 @@ int main() {
                                 //User attack landed on CPU (defense), take health from CPU
                                 if(attackExecuted == true) {
                                     battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
                                 }
                                 
                                 //User attack failed on CPU
                                 else if(attackExecuted == false) {
-                                    menu.BattleMenu4(characterType, attackExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
                                 }
                             }
                             
@@ -497,30 +497,30 @@ int main() {
                                 //User attack landed on CPU (offense), take health from CPU
                                 if(attackExecuted2 == true) {
                                     battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu4(characterType, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu4(characterType, attackExecuted2, player, &enemy);
                                 }
                                 
                                 else if(attackExecuted2 == false) {
                                     battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu5(characterType, action, attackExecuted2, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu5(characterType, action, attackExecuted2, player, &enemy);
                                 }
                             }
                             
                             
                             if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                                 if(defendExecuted == true) {
-                                    menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
                                 }
                                 
                                 else if(defendExecuted == false) {
                                     battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu5(characterType, action, defendExecuted, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                    menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
                                 }
                             }
                             
                             if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                                 bool doubleDefend = true;
-                                menu.BattleMenu6(characterType, doubleDefend, currHealth, enemyCurrHealth, currArmor, enemyCurrArmor);
+                                menu.BattleMenu6(characterType, doubleDefend, player, &enemy);
                             }
                         }
                     }
@@ -528,7 +528,6 @@ int main() {
                     bool fightResult = result(currHealth, enemyCurrHealth);
                     
                     if(fightResult) {
-                        
                         player->levelUp(currHealth, enemyCurrHealth);
                         menu.EndBattleMenu(fightResult, player->getLevel());
                         string Sdecision; // Save Decision

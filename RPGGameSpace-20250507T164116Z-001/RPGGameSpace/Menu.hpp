@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "Character.hpp"
+#include "Enemy.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -27,16 +28,16 @@ class Menu {
         void LoadGameMenu(Character& character);
         void SavedGameMenu(Character& character); 
         void BaseGameMenu(string, string, Character*);
-        void BattleMenu1(string, Character*);
-        void BattleMenu2(string, Character*);
-        void BattleMenu3(string, int, Character*, Enemy*);
-        void BattleMenu4(string, bool, Character*, Enemy*);
-        void BattleMenu5(string, string, bool, Character*, Enemy*);
-        void BattleMenu6(string, bool, Character*, Enemy*);
+        void BattleMenu1(string, Character* player);
+        void BattleMenu2(string, Character* player);
+        void BattleMenu3(string, int, Character* player, Enemy* enemy);
+        void BattleMenu4(string, bool, Character* player, Enemy* enemy);
+        void BattleMenu5(string, string, bool, Character* player, Enemy* enemy);
+        void BattleMenu6(string, bool, Character*, Enemy* enemy);
         void EndBattleMenu(bool, int);
         void ViewCharactersMenu(string);
         void QuitMenu();
         void QuitMenu2();
 };
 
-#endif /* Menu_hpp */
+#endif // Menu_hpp 
