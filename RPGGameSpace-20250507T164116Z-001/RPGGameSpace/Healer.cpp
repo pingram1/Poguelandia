@@ -23,6 +23,12 @@ Healer::Healer() {
 }
 
 Healer::Healer(string _name) : Character(_name) {
+    setCharacterType("Healer");
+    setMaxHealth(1300);
+    setCurrHealth(1300);
+    setMaxArmor(300);
+    setCurrArmor(300);
+    setLevel(1);
 }
 
 string Healer::getName() {

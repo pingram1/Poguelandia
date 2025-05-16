@@ -42,6 +42,7 @@ class Warrior : public Character {
         int getCurrHealth();
         int getCurrXP();
         int getMaxXP();
+        void setCharacterType(string);
         void setName(string);
         void setAttackType(string);
         void setLevel(int);

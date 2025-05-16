@@ -42,6 +42,7 @@ class Assassin : public Character {
         int getCurrXP();
         int getMaxXP();
         void setName(string);
+        void setCharacterType(string);
         void setAttackType(string);
         void setLevel(int);
         void setMaxArmor(int);

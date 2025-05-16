@@ -23,6 +23,12 @@ Wizard::Wizard() {
 }
 
 Wizard::Wizard(string _name) : Character(_name) {
+    setCharacterType("Wizard");
+    setMaxHealth(1000);
+    setCurrHealth(1000);
+    setMaxArmor(80);
+    setCurrArmor(80);
+    setLevel(1);
 }
 
 string Wizard::getName() {

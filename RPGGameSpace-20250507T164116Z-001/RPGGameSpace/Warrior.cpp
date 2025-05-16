@@ -23,6 +23,12 @@ Warrior::Warrior() {
 }
 
 Warrior::Warrior(string _name) : Character(_name) {
+    setCharacterType("Warrior");
+    setMaxHealth(1200);   
+    setCurrHealth(1200);  
+    setMaxArmor(200);    
+    setCurrArmor(200);   
+    setLevel(1);         
 }
 
 string Warrior::getName() {

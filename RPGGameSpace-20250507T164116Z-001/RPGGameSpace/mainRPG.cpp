@@ -214,7 +214,7 @@ int main() {
     //Determines whether user or CPU gets to move first
     int fightFirst = rand() % 2 + 1;
     
-    string attackType, name, characterType;
+    string attackType, name, characterType, defendType;
     string enemyAttackType, enemyCharacterType, enemyAction;
     unsigned int attackProbability = 0;
     unsigned int defendProbability = 0;
@@ -320,13 +320,17 @@ int main() {
                         UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                         cin >> action;
                         
-                        //Gets probability of performing this attack based on the attack type
+                        //Gets probability of performing this attack based on the attack/defend type
                         if(action == "Light" || action == "Normal" || action == "Heavy") {
                             attackType = action;
                             attackProbability = player->attackProbability(attackType);
                         }
+
+                        if(action == "Block" || action == "Parry" || action == "Evade" ||action == "block" || action == "parry" || action == "evade") {
+                            defendType = action;
+                            defendProbability = player->defendProbability(defendType);
+                        }
                             
-                        
                         //Declared outside the switch statement (fightFirst)
                         if(fightFirst == 1) {
                             if(action == "Light" || action == "Normal" || action == "Heavy") {
@@ -418,8 +422,8 @@ int main() {
                             }
 
                             if(action == "Block" || action == "Parry" || action == "Evade") {
-                                attackType = action;
-                                attackProbability = player->attackProbability(attackType);
+                                defendType = action;
+                                defendProbability = player->defendProbability(defendType);
                             }
                             
                             attackExecuted = userAttackLanded(attackProbability, enemyDefendProbability);

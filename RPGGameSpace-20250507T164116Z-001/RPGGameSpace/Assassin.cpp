@@ -22,8 +22,13 @@ Assassin::Assassin() {
     currXP = 200;
 }
 
-Assassin::Assassin(string _name) {
-    name = _name;
+Assassin::Assassin(string _name) : Character(_name) {
+    setCharacterType("Assassin");
+    setMaxHealth(1100);
+    setCurrHealth(1100);
+    setMaxArmor(150);
+    setCurrArmor(150);
+    setLevel(1);
 }
 
 string Assassin::getName() {
