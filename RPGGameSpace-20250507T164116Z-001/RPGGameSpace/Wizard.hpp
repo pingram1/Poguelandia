@@ -51,8 +51,8 @@ class Wizard : public Character {
         void setCurrXP(int);
         void setMaxXP(int);
         int attack(const string &action) override; //returns attack (type) value based on user input (light, normal, weak)
-        int attackProbability(string);
-        int defend(string); //returns defend or evade move (abilities vary per character type)
+        int attackProbability(const string &action) override;
+        int defendProbability(string) override; //returns defend or evade move (abilities vary per character type)
         int decreaseHealth(string, int, string);
         int decreaseArmor(string, int, string);
         int levelUp(const int &, const int &) override;

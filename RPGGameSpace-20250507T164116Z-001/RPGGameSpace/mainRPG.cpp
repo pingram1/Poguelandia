@@ -112,42 +112,22 @@ bool hasHealth(int currHealth, int enemyCurrHealth) {
  * action: The specific action to be executed.
  * return The calculated attack value.
  */
-int calculateAttackValue(string characterType, string action) {
+int calculateAttackValue(Character* character, string action) {
     // Instantiate appropriate character class based on characterType and call its attack method
-    if(characterType == "Warrior" || characterType == "warrior") {
-        Warrior w;
-        return w.attack(action);
-    }
-        
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        Wizard w;
-        return w.attack(action);
-    }
-        
-    else if(characterType == "Healer" || characterType == "healer") {
-        Healer h;
-        return h.attack(action);
-    }
-    
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        Assassin a;
-        return a.attack(action);
-    }
-        
-    return 0;
+    return character->attack(action);
 }
 
 /** 
  * Determines the attack value of the character based on the initiative of the battle.
  * fightFirst: Specifies which character strikes first (1 for player, 2 for enemy). 
  */
-int firstHit(int fightFirst, string characterType, string enemyAction, string enemyCharacterType, string action) {
+int firstHit(int fightFirst, Character* character, string enemyAction, string enemyCharacterType) {
     Enemy enemy;
     int attackValue = 0;
     srand((unsigned int) time(0));
     
     if(fightFirst == 1) {
-        attackValue = calculateAttackValue(characterType, action);
+        attackValue = calculateAttackValue(character, enemyAction);
     }
         
     else if(fightFirst == 2) {
@@ -159,8 +139,8 @@ int firstHit(int fightFirst, string characterType, string enemyAction, string en
 
 
 // Initiates the battle for the player character.
-int UserBattle(string characterType, string action) {
-    return calculateAttackValue(characterType, action);
+int UserBattle(Character* character, string action) {
+    return calculateAttackValue(character, action);
 }
 
 // Initiates the battle for the CPU (enemy) character.
@@ -179,6 +159,38 @@ int CPUBattle(string enemyCharacterType, string enemyAction) {
     return enemyAttackValue;
 }
 
+void createEnemy(Enemy* enemy, const string& enemyCharacterType) {
+    if (enemyCharacterType == "Warrior") {
+        enemy->setCharacterType("Warrior");
+        enemy->setMaxHealth(1200);
+        enemy->setCurrHealth(1200);
+        enemy->setMaxArmor(200);
+        enemy->setCurrArmor(200);
+        enemy->setLevel(1);
+    } else if (enemyCharacterType == "Wizard") {
+        enemy->setCharacterType("Wizard");
+        enemy->setMaxHealth(1000);
+        enemy->setCurrHealth(1000);
+        enemy->setMaxArmor(80);
+        enemy->setCurrArmor(80);
+        enemy->setLevel(1);
+    } else if (enemyCharacterType == "Healer") {
+        enemy->setCharacterType("Healer");
+        enemy->setMaxHealth(1300);
+        enemy->setCurrHealth(1300);
+        enemy->setMaxArmor(300);
+        enemy->setCurrArmor(300);
+        enemy->setLevel(1);
+    } else if (enemyCharacterType == "Assassin") {
+        enemy->setCharacterType("Assassin");
+        enemy->setMaxHealth(1100);
+        enemy->setCurrHealth(1100);
+        enemy->setMaxArmor(150);
+        enemy->setCurrArmor(150);
+        enemy->setLevel(1);
+    }
+}
+
 int main() {
     srand(static_cast<unsigned int>(time(0)));
      /**
@@ -192,11 +204,7 @@ int main() {
     Menu menu;
     BattleManager battleManager;
     Character* player = nullptr;
-    Wizard wizard;
-    Warrior warrior;
-    Assassin assassin;
-    Healer healer;
-    Enemy enemy;
+    Enemy* enemy = new Enemy();
     int menuInput1;
     string menuInput2;
     string coinToss;
@@ -212,12 +220,12 @@ int main() {
     unsigned int defendProbability = 0;
     unsigned int enemyAttackProbability = 0;
     unsigned int enemyDefendProbability = 0;
+    unsigned int currHealth = 1;
+    unsigned int currArmor = 1;
     int attackValue = 0;
     int enemyAttackValue = 0;
-    int currHealth = 0;
-    int currArmor = 0;
-    int enemyCurrHealth = enemy.getCurrHealth();
-    //unsigned int enemyCurrArmor = enemy.getCurrArmor();
+    int enemyCurrHealth = enemy->getCurrHealth();
+    unsigned int enemyCurrArmor = enemy->getCurrArmor();
 
     // Main game loop
     menu.MainMenu();
@@ -287,45 +295,27 @@ int main() {
                         break;
                     }
                 }
- 
+                
                 menu.BaseGameMenu(name, characterType, player);
                 cin >> menuInput2;
                 
                 if(menuInput2 == "Yes" || menuInput2 == "yes") {
                     menu.BattleMenu1(characterType, player);
                     menu.BattleMenu2(characterType, player);
-                    
+
+                    UIUtils::displayText("Health: " + to_string(currHealth) + " Armor: " + to_string(currArmor));
                     UIUtils::displayText("Flip a coin (Select heads or tails)");
                     cin >> coinToss;
                     
                     // Determines who makes the first move (User or CPU)
                     if(coinToss == "Heads" || coinToss == "heads" || coinToss == "Tails" || coinToss == "tails") {
-                        menu.BattleMenu3(characterType, fightFirst, player, &enemy);
-                        
-                        if(characterType == "Warrior") {
-                            currHealth = warrior.getCurrHealth();
-                            currArmor = warrior.getCurrArmor();
-                        }
-                        
-                        else if(characterType == "Wizard") {
-                            currHealth = wizard.getCurrHealth();
-                            currArmor = wizard.getCurrArmor();
-                        }
-                        
-                        else if(characterType == "Healer") {
-                            currHealth = healer.getCurrHealth();
-                            currArmor = healer.getCurrArmor();
-                        }
-                        
-                        else if(characterType == "Assassin") {
-                            currHealth = assassin.getCurrHealth();
-                            currArmor = assassin.getCurrArmor();
-                        }
+                        menu.BattleMenu3(characterType, fightFirst, player, enemy);
                         
                         //Randomizes enemy type and actions to create realistic opponent
-                        enemyCharacterType = enemy.randomizeEnemyTypes();
-                        enemyAction = enemy.randomizeEnemyActions();
-                        int enemyCurrArmor = enemy.getCurrArmor();
+                        enemyCharacterType = enemy->randomizeEnemyTypes();
+                        createEnemy(enemy, enemyCharacterType); 
+                        enemyAction = enemy->randomizeEnemyActions();
+                        enemyCurrArmor = enemy->getCurrArmor();
                         
                         UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                         cin >> action;
@@ -333,44 +323,27 @@ int main() {
                         //Gets probability of performing this attack based on the attack type
                         if(action == "Light" || action == "Normal" || action == "Heavy") {
                             attackType = action;
-                            if(characterType == "Warrior") {
-                                attackProbability = warrior.attackProbability(attackType);
-                            }
-                            
-                            else if(characterType == "Wizard") {
-                                attackProbability = wizard.attackProbability(attackType);
-                            }
-                            
-                            else if(characterType == "Healer") {
-                                attackProbability = healer.attackProbability(attackType);
-                            }
-                            
-                            else if(characterType == "Assassin") {
-                                attackProbability = assassin.attackProbability(attackType);
-                            }
+                            attackProbability = player->attackProbability(attackType);
                         }
+                            
                         
                         //Declared outside the switch statement (fightFirst)
                         if(fightFirst == 1) {
                             if(action == "Light" || action == "Normal" || action == "Heavy") {
-                                attackValue = firstHit(fightFirst, characterType, enemyAction, enemyCharacterType, action);
-                                enemyDefendProbability = enemy.defend(enemyAction);
-                                enemyAttackProbability = enemy.attackProbability(enemyAction);
-                            }
-                            
-                            else if(action == "Block" || action == "Parry" || action == "Evade") {
-                                
+                                attackValue = firstHit(fightFirst, player, enemyAction, enemyCharacterType);
+                                enemyDefendProbability = enemy->defendProbability(enemyAction);
+                                enemyAttackProbability = enemy->attackProbability(enemyAction);
                             }
                         }
                         
                         else if(fightFirst == 2) {
                             if(enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy") {
-                                enemyAttackProbability = enemy.attackProbability(enemyAction);
-                                enemyAttackValue = enemy.attack(enemyAction, enemyCharacterType);
+                                enemyAttackProbability = enemy->attackProbability(enemyAction);
+                                enemyAttackValue = enemy->attack(enemyAction, enemyCharacterType);
                             }
                             
                             if(enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade") {
-                                enemyDefendProbability = enemy.defend(enemyAction);
+                                enemyDefendProbability = enemy->defendProbability(enemyAction);
                             }
                         }
                         
@@ -400,63 +373,54 @@ int main() {
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                             if(attackExecuted == true) {
-                                battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
+                                battleManager.handleAttack(player, enemy, action);
+                                menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                             }
                             
                             else if(attackExecuted == false) {
-                                menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
+                                menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                             }
                         }
                         
                         if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                             if(attackExecuted2 == true) {
-                                battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu4(characterType, attackExecuted2, player, &enemy);
+                                battleManager.handleAttack(player, enemy, action);
+                                menu.BattleMenu4(characterType, attackExecuted2, player, enemy);
                             }
                              
                             else if(attackExecuted2 == false) {
-                                battleManager.handleAttack(*player, enemy, action); 
-                                menu.BattleMenu5(characterType, action, attackExecuted2, player, &enemy);
+                                battleManager.handleAttack(player, enemy, action); 
+                                menu.BattleMenu5(characterType, action, attackExecuted2, player, enemy);
                             }
                         }
                         
                         else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                             if(defendExecuted == true) {
-                                menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
+                                menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                             }
                             
                             else if(defendExecuted == false) {
-                                battleManager.handleAttack(*player, enemy, action);
-                                menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
+                                battleManager.handleAttack(player, enemy, action);
+                                menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                             }
                         }
 
                         // 
                         while(hasHealth(currHealth, enemyCurrHealth) == true) {
-                            enemyAction = enemy.randomizeEnemyActions();
+                            enemyAction = enemy->randomizeEnemyActions();
                             
                             UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                             cin >> action; // ... (Get user input)
                             
                             if(action == "Light" || action == "Normal" || action == "Heavy") {
                                 attackType = action;
-                                if(characterType == "Warrior") {
-                                    attackProbability = warrior.attackProbability(attackType);
-                                }
-                                
-                                else if(characterType == "Wizard") {
-                                    attackProbability = wizard.attackProbability(attackType);
-                                }
-                                
-                                else if(characterType == "Healer") {
-                                    attackProbability = healer.attackProbability(attackType);
-                                }
-                                
-                                else if(characterType == "Assassin") {
-                                    attackProbability = assassin.attackProbability(attackType);
-                                }
-                            }    
+                                attackProbability = player->attackProbability(attackType);
+                            }
+
+                            if(action == "Block" || action == "Parry" || action == "Evade") {
+                                attackType = action;
+                                attackProbability = player->attackProbability(attackType);
+                            }
                             
                             attackExecuted = userAttackLanded(attackProbability, enemyDefendProbability);
                             defendExecuted = userDefendExecuted(defendProbability, enemyAttackProbability);
@@ -483,44 +447,44 @@ int main() {
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                                 //User attack landed on CPU (defense), take health from CPU
                                 if(attackExecuted == true) {
-                                    battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
+                                    battleManager.handleAttack(player, enemy, action);
+                                    menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                                 }
                                 
                                 //User attack failed on CPU
                                 else if(attackExecuted == false) {
-                                    menu.BattleMenu4(characterType, attackExecuted, player, &enemy);
+                                    menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                                 }
                             }
                             
                             if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                                 //User attack landed on CPU (offense), take health from CPU
                                 if(attackExecuted2 == true) {
-                                    battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu4(characterType, attackExecuted2, player, &enemy);
+                                    battleManager.handleAttack(player, enemy, action);
+                                    menu.BattleMenu4(characterType, attackExecuted2, player, enemy);
                                 }
                                 
                                 else if(attackExecuted2 == false) {
-                                    battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu5(characterType, action, attackExecuted2, player, &enemy);
+                                    battleManager.handleAttack(player, enemy, action);
+                                    menu.BattleMenu5(characterType, action, attackExecuted2, player, enemy);
                                 }
                             }
                             
                             
                             if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
                                 if(defendExecuted == true) {
-                                    menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
+                                    menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                                 }
                                 
                                 else if(defendExecuted == false) {
-                                    battleManager.handleAttack(*player, enemy, action);
-                                    menu.BattleMenu5(characterType, action, defendExecuted, player, &enemy);
+                                    battleManager.handleAttack(player, enemy, action);
+                                    menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                                 }
                             }
                             
                             if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
                                 bool doubleDefend = true;
-                                menu.BattleMenu6(characterType, doubleDefend, player, &enemy);
+                                menu.BattleMenu6(characterType, doubleDefend, player, enemy);
                             }
                         }
                     }
@@ -596,6 +560,7 @@ int main() {
         while(invalidInput == true);
 
         delete player;
+        delete enemy;
         
         return 0;
     }

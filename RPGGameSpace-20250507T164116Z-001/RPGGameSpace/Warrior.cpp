@@ -136,7 +136,7 @@ int Warrior::attack(const string &attackType) {
     return attackValue;
 }
 
-int Warrior::attackProbability(string attackType) {
+int Warrior::attackProbability(const string &attackType) {
     srand((unsigned int)time(0));
     unsigned int attackProbability = 0;
     
@@ -155,23 +155,23 @@ int Warrior::attackProbability(string attackType) {
     return attackProbability;
 }
 
-int Warrior::defend(string defendAction) {
-    int defenseAttack = 0;
+int Warrior::defendProbability(string defendAction) {
     srand((unsigned int)time(0));
+    unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Parry" || defendAction == "parry") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Evade" || defendAction == "evade") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
-    return defenseAttack;
+    return defendProbability;
 }
 
 int Warrior::decreaseHealth(string characterType, int attackValue, string attackType) {

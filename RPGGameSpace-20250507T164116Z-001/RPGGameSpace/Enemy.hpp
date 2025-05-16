@@ -48,8 +48,8 @@ class Enemy : public Character {
         void setMaxXP(int);
         int attack(string, string);
         int attack(const string &action) override;
-        int attackProbability(string);
-        int defend(string);
+        int attackProbability(const string &action) override;
+        int defendProbability(string) override;
         int decreaseHealth(string, int, string); //takes in a string of the character type and decreases health according to that character's stats
         int decreaseArmor(string, int, string);
         string randomizeEnemyTypes();
@@ -57,4 +57,4 @@ class Enemy : public Character {
         int levelUp(const int &, const int &) override; //inheritance for each class (adjusted values will vary per class)
 };
 
-#endif /* Enemy_hpp */
+#endif // Enemy_hpp

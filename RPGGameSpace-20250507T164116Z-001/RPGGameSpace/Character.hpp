@@ -53,6 +53,8 @@ class Character {
         void setCurrXP(int);
         void setMaxXP(int);
         //int virtual decreaseHealth(string, int, string) = 0; //takes in a string of the character type and decreases health according to that character's stats
+        virtual int attackProbability(const string &action) = 0;
+        virtual int defendProbability(string) = 0;
         virtual int levelUp(const int &, const int &) = 0; //inheritance for each class (adjusted values will vary per class)
         virtual int attack(const string &action) = 0;
         virtual string randomizeEnemyActions() { return ""; }

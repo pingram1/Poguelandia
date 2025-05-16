@@ -606,7 +606,6 @@ void Menu::EndBattleMenu(bool result, int level) {
         UIUtils::displayText("|                                                                               by PI   |");
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     }
-    
     UIUtils::displayText("");
 }
 

@@ -142,7 +142,7 @@ int Healer::attack(const string &attackType) {
     return attackValue;
 }
 
-int Healer::attackProbability(string attackType) {
+int Healer::attackProbability(const string &attackType) {
     srand((unsigned int)time(0));
     int attackProbability = 0;
     
@@ -161,23 +161,23 @@ int Healer::attackProbability(string attackType) {
     return attackProbability;
 }
 
-int Healer::defend(string defendAction) {
-    int defenseAttack = 0;
+int Healer::defendProbability(string defendAction) {
     srand((unsigned int) time(0));
+    unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Parry" || defendAction == "parry") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Evade" || defendAction == "evade") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
-    return defenseAttack;
+    return defendProbability;
 }
 
 int Healer::decreaseHealth(string characterType, int attackValue, string attackType) {

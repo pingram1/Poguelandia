@@ -131,7 +131,7 @@ int Wizard::attack(const string &attackType) {
     return attackValue;
 }
 
-int Wizard::attackProbability(string attackType) {
+int Wizard::attackProbability(const string &attackType) {
     srand((unsigned int)time(0));
     int attackProbability = 0;
     
@@ -150,23 +150,23 @@ int Wizard::attackProbability(string attackType) {
     return attackProbability;
 }
 
-int Wizard::defend(string defendAction) {
-    int defenseAttack = 0;
+int Wizard::defendProbability(string defendAction) {
     srand((unsigned int) time(0));
+    unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Parry" || defendAction == "parry") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Evade" || defendAction == "evade") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
-    return defenseAttack;
+    return defendProbability;
 }
 
 int Wizard::decreaseHealth(string characterType, int attackValue, string attackType) {

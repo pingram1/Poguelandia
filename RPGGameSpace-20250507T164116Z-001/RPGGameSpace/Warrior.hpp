@@ -52,8 +52,8 @@ class Warrior : public Character {
         void setCurrXP(int);
         void setMaxXP(int);
         int attack(const string &action) override; //returns attack (type) value based on user input (light, normal, weak)
-        int attackProbability(string); //returns an int 1-100 to land attack vs. attack or defend
-        int defend(string); //returns defend or evade move (abilities vary per character type)
+        int attackProbability(const string &action) override; //returns an int 1-100 to land attack vs. attack or defend
+        int defendProbability(string) override; //returns defend or evade move (abilities vary per character type)
         int decreaseHealth(string, int, string); //responsible for taking armor/health from character when successfully attacked
         int decreaseArmor(string, int, string);
         int levelUp(const int &, const int &) override;

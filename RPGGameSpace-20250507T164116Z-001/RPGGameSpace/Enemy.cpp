@@ -129,7 +129,7 @@ int Enemy::attack(string attackType, string charType) {
     return 0;
 }
 
-int Enemy::attackProbability(string attackType) {
+int Enemy::attackProbability(const string &attackType) {
     srand((unsigned int)time(0));
     int attackProbability = 0;
 
@@ -146,21 +146,21 @@ int Enemy::attackProbability(string attackType) {
     return attackProbability;
 }
 
-int Enemy::defend(string enemyAction) {
-    unsigned int defenseProbability = 0;
+int Enemy::defendProbability(string enemyAction) {
+    unsigned int defendProbability = 0;
     srand((unsigned int) time(0));
 
     if(enemyAction == "Block" || enemyAction == "block") {
-        defenseProbability = rand() % 100;
+        defendProbability = rand() % 100;
     }
     else if(enemyAction == "Parry" || enemyAction == "parry") {
-        defenseProbability = rand() % 100;
+        defendProbability = rand() % 100;
     }
     else if(enemyAction == "Evade" || enemyAction == "evade") {
-        defenseProbability = rand() % 100;
+        defendProbability = rand() % 100;
     }
 
-    return defenseProbability;
+    return defendProbability;
 }
 
 int Enemy::decreaseHealth(string characterType, int attackValue, string attackType) {

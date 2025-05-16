@@ -141,7 +141,7 @@ int Assassin::attack(const string &attackType) {
     return attackValue;
 }
 
-int Assassin::attackProbability(string attackType) {
+int Assassin::attackProbability(const string &attackType) {
     srand((unsigned int)time(0));
     int attackProbability = 0;
     
@@ -160,27 +160,27 @@ int Assassin::attackProbability(string attackType) {
     return attackProbability;
 }
 
-int Assassin::defend(string defendAction) {
-    int defenseAttack = 0;
+int Assassin::defendProbability(string defendAction) {
     srand((unsigned int) time(0));
+    unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     else if(defendAction == "Parry" || defendAction == "parry") {
-        defenseAttack = rand() % 100;
+        defendProbability = rand() % 100;
     }
     
     //Assassins have 50% chance to evade an attack
     else if(defendAction == "Evade" || defendAction == "evade") {
-        defenseAttack = rand() % 2 + 1;
-        if(defenseAttack % 2 == 0) {
-            defenseAttack = 100;
+        defendProbability = rand() % 2 + 1;
+        if(defendProbability % 2 == 0) {
+            defendProbability = 100;
         }
     }
     
-    return defenseAttack;
+    return defendProbability;
 }
 
 int Assassin::decreaseHealth(string characterType, int attackValue, string attackType) {
