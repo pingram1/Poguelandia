@@ -22,6 +22,7 @@
 #include <thread>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -32,6 +33,62 @@ using namespace std;
 #define YELLOW "\033[33m"
 #define CYAN "\033[36m"
 #define BOLD "\033[1m"
+
+// Helper function to generate a formatted health and armor bar string
+// This function is local to Menu.cpp
+string getHealthBarString(const string& characterName, int hp, int maxHp, int currentArmor, int maxArmor, int level) {
+    string barOutputStr;
+    
+    // Max widths for alignment
+    const int nameFieldWidth = 15;    // Adjusted for "Player" / "Enemy Name"
+    const int levelFieldWidth = 8;   // For "Lvl: X"
+    const int hpBarVisualWidth = 20; // Width of the [#---] part
+    const int hpTextFieldWidth = 12; // For "XXX/XXX"
+    const int armorTextFieldWidth = 15; // For "Armor: XX/XX"
+
+    // Character Name (padded or truncated)
+    string displayName = characterName;
+    if (displayName.length() > static_cast<size_t>(nameFieldWidth -1)) {
+        displayName = displayName.substr(0, nameFieldWidth - 4) + "... ";
+    } else {
+        displayName.insert(0, nameFieldWidth - displayName.length(), ' '); // Right align name
+        // displayName.append(nameFieldWidth - displayName.length(), ' '); // Left align name
+    }
+    barOutputStr += BOLD + displayName + RESET;
+
+    // Level
+    string levelStr = " Lvl:" + to_string(level);
+    levelStr.append(levelFieldWidth - levelStr.length(), ' ');
+    barOutputStr += levelStr;
+
+    // Health Bar
+    int displayHp = (hp < 0) ? 0 : hp;
+    if (maxHp <= 0) maxHp = 1; // Avoid division by zero and ensure positive maxHp
+
+    int filledBars = static_cast<int>((static_cast<double>(displayHp) / maxHp) * hpBarVisualWidth);
+    if (filledBars < 0) filledBars = 0;
+    if (filledBars > hpBarVisualWidth) filledBars = hpBarVisualWidth;
+    int emptyBars = hpBarVisualWidth - filledBars;
+
+    barOutputStr += " HP:[";
+    barOutputStr += GREEN;
+    for (int i = 0; i < filledBars; i++) barOutputStr += "#";
+    barOutputStr += RED;
+    for (int i = 0; i < emptyBars; i++) barOutputStr += "-";
+    barOutputStr += RESET;
+    barOutputStr += "]";
+
+    string hpText = " " + to_string(displayHp) + "/" + to_string(maxHp);
+    hpText.append(hpTextFieldWidth - hpText.length(), ' ');
+    barOutputStr += hpText;
+    
+    // Armor
+    string armorText = " Armor:" + to_string(currentArmor) + "/" + to_string(maxArmor);
+    armorText.append(armorTextFieldWidth - armorText.length(), ' '); // Padding for armor text
+    barOutputStr += armorText;
+    
+    return barOutputStr;
+}
 
 // Function to display a health bar (This function should also be refactored to use UIUtils or a separate GUI component later)
 void displayHealthBar(const string& name, int hp, int maxHp) {
@@ -106,8 +163,15 @@ void Menu::BaseGameMenu(string menuName, string menuCharacterType, Character* pl
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|  Character Name: " + menuName);
         UIUtils::displayText("|  Character Type: " + menuCharacterType);
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        string playerBar = getHealthBarString("Your Stats", player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
+        string playerLine = "| " + playerBar;
+        size_t paddingNeeded = 0;
+        if (75 > playerBar.length()) { // Assuming content width of 75 for the bar + padding
+            paddingNeeded = 75 - playerBar.length();
+        }
+        playerLine.append(paddingNeeded, ' '); 
+        playerLine += " |";
+        UIUtils::displayText(playerLine);
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -210,8 +274,15 @@ void Menu::BattleMenu1(string menuCharacterType, Character* player) {
     if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
+        string playerBar = getHealthBarString(player->getName(), player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
+        string playerLine = "| " + playerBar;
+        size_t paddingNeeded = 0;
+        if (75 > playerBar.length()) {
+            paddingNeeded = 75 - playerBar.length();
+        }
+        playerLine.append(paddingNeeded, ' ');
+        playerLine += " |";
+        UIUtils::displayText(playerLine);
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -249,11 +320,15 @@ void Menu::BattleMenu2(string menuCharacterType, Character* player) {
     if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                          *                         *                                  |");
+        string playerBar = getHealthBarString(player->getName(), player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
+        string playerLine = "| " + playerBar;
+        size_t paddingNeeded = 0;
+        if (75 > playerBar.length()) {
+            paddingNeeded = 75 - playerBar.length();
+        }
+        playerLine.append(paddingNeeded, ' ');
+        playerLine += " |";
+        UIUtils::displayText(playerLine);
         UIUtils::displayText("|    *        *                  *        *                                           * |");
         UIUtils::displayText("|                 *  *   *    *        *        *               *                   *   |");
         UIUtils::displayText("|         *         *           *          *               *                            |");
@@ -269,7 +344,7 @@ void Menu::BattleMenu2(string menuCharacterType, Character* player) {
         UIUtils::displayText("|                                                                               by PI   |");
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     } else {
-        UIUtils::displayText("Error: Invalid character type for BattleMenu2.");
+        UIUtils::displayText("Error: Player data not available.");
     }
     
     UIUtils::displayText("");
@@ -278,7 +353,7 @@ void Menu::BattleMenu2(string menuCharacterType, Character* player) {
 void Menu::ViewCharactersMenu(string menuCharacterType) {
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
-    if(menuCharacterType == "Warrior") {
+    if(menuCharacterType == "Warrior" || menuCharacterType == "warrior") {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -303,7 +378,7 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     }
     
-    else if(menuCharacterType == "Wizard") {
+    else if(menuCharacterType == "Wizard" || menuCharacterType == "wizard") {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -328,7 +403,7 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     }
     
-    else if(menuCharacterType == "Healer") {
+    else if(menuCharacterType == "Healer" || menuCharacterType == "healer") {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -353,7 +428,7 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     }
     
-    else if(menuCharacterType == "Assassin") {
+    else if(menuCharacterType == "Assassin" || menuCharacterType == "assassin") {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -381,6 +456,46 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
     UIUtils::displayText("");
 }
 
+void Menu::BattleMenuSharedContent(Character* player, Enemy* enemy, const string& battleMessage) {
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+    UIUtils::displayText("|                                  Battle Status                                        |");
+    UIUtils::displayText("|---------------------------------------------------------------------------------------|");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    string playerBarStr = getHealthBarString(player->getName(), player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
+    string playerLine = "| " + playerBarStr;
+    size_t playerPadding = 0;
+    if (75 > playerBarStr.length() +1) playerPadding = 75 - (playerBarStr.length() +1) ; // +1 for the initial space in "| "
+    playerLine.append(playerPadding , ' '); 
+    playerLine += "|";
+    UIUtils::displayText(playerLine);
+
+    string enemyBarStr  = getHealthBarString(enemy->getName(), enemy->getCurrHealth(), enemy->getMaxHealth(), enemy->getCurrArmor(), enemy->getMaxArmor(), enemy->getLevel());
+    string enemyLine = "| " + enemyBarStr;
+    size_t enemyPadding = 0;
+     if (75 > enemyBarStr.length() +1) enemyPadding = 75 - (enemyBarStr.length() +1) ;
+    enemyLine.append(enemyPadding , ' ');
+    enemyLine += "|";
+    UIUtils::displayText(enemyLine);
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                          *                         *                                  |");
+    UIUtils::displayText("|    *        *                  *        *                                           * |");
+    UIUtils::displayText("|                 *  *   *    *        *        *               *                   *   |");
+    UIUtils::displayText("|         *         *           *          *               *                            |");
+    UIUtils::displayText("|               *                 *    *           *              *                     |");
+    UIUtils::displayText("|                       *                   *                           *               |");
+    UIUtils::displayText("|        *                      *                      *                                |");
+    UIUtils::displayText("|   _________________________________________________________________________________   |");
+    UIUtils::displayText("|         |            |             |             |             |            |         |");
+    UIUtils::displayText("|         |            |             |             |             |            |         |");
+    UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|         " + battleMessage);
+    UIUtils::displayText("|                                                                               by PI   |");
+    UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+}
+
 void Menu::BattleMenu3(string menuCharacterType, int fightFirst, Character* player, Enemy* enemy) {
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
     
@@ -393,27 +508,7 @@ void Menu::BattleMenu3(string menuCharacterType, int fightFirst, Character* play
     }
 
     if (player && enemy) {
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                          *                         *                                  |");
-        UIUtils::displayText("|    *        *                  *        *                                           * |");
-        UIUtils::displayText("|                 *  *   *    *        *        *               *                   *   |");
-        UIUtils::displayText("|         *         *           *          *               *                            |");
-        UIUtils::displayText("|               *                 *    *           *              *                     |");
-        UIUtils::displayText("|                       *                   *                           *               |");
-        UIUtils::displayText("|        *                      *                      *                                |");
-        UIUtils::displayText("|   _________________________________________________________________________________   |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|         " + battlePhrases);
-        UIUtils::displayText("|                                                                               by PI   |");
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        BattleMenuSharedContent(player, enemy,battlePhrases);
     } else {
         UIUtils::displayText("Error: Invalid character type for BattleMenu3.");
     }
@@ -433,27 +528,7 @@ void Menu::BattleMenu4(string menuCharacterType, bool attackExecuted, Character*
     }
 
     if (player && enemy) {
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                          *                         *                                  |");
-        UIUtils::displayText("|    *        *                  *        *                                           * |");
-        UIUtils::displayText("|                 *  *   *    *        *        *               *                   *   |");
-        UIUtils::displayText("|         *         *           *          *               *                            |");
-        UIUtils::displayText("|               *                 *    *           *              *                     |");
-        UIUtils::displayText("|                       *                   *                           *               |");
-        UIUtils::displayText("|        *                      *                      *                                |");
-        UIUtils::displayText("|   _________________________________________________________________________________   |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|         " + battlePhrases);
-        UIUtils::displayText("|                                                                               by PI   |");
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        BattleMenuSharedContent(player, enemy,battlePhrases);
     } else {
         UIUtils::displayText("Error: Invalid character type for BattleMenu4.");
     }
@@ -464,51 +539,33 @@ void Menu::BattleMenu4(string menuCharacterType, bool attackExecuted, Character*
 void Menu::BattleMenu5(string menuCharacterType, string action, bool defendExecuted, Character* player, Enemy* enemy) {
     string battlePhrases = "";
     
-    if(defendExecuted == true && action == "Block") {
+    if(defendExecuted == true && (action == "Block" || action == "block")) {
         battlePhrases = "Effective block, still hurts a little though";
     }
     
-    else if(defendExecuted == true && action == "Parry") {
+    else if(defendExecuted == true && (action == "Parry" || action == "parry")) {
         battlePhrases = "Great reaction! Now it's time to counter your opponent";
     }
     
-    else if(defendExecuted == true && action == "Evade") {
+    else if(defendExecuted == true && (action == "Evade" || action == "evade")) {
         battlePhrases = "Looks like they missed completely, here's your chance";
     }
     
     //User attack probability is lower than enemy attack/defend probability
-    else if((defendExecuted == false) && (action == "Light" || action == "Normal" || action == "Heavy")) {
+    else if((defendExecuted == false) && (action == "Light" || action == "Normal" || action == "Heavy" || action == "light" || action == "normal" || action == "heavy")) {
         battlePhrases = "Maybe try recalibrating your swing ... because you missed";
     }
     
-    else if((defendExecuted == false) && (action == "Block" || action == "Parry" || action == "Evade")) {
+    else if((defendExecuted == false) && (action == "Block" || action == "Parry" || action == "Evade" || action == "block" || action == "parry" || action == "evade")) {
         battlePhrases = "Ouch. They got you pretty good, maybe you should heal or something";
+    } else {
+        battlePhrases = "The tide of battle shifts!"; // Generic
     }
 
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
     if (player && enemy) {
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                          *                         *                                  |");
-        UIUtils::displayText("|    *        *                  *        *                                           * |");
-        UIUtils::displayText("|     *            *  *   *    *        *        *               *                   *  |");
-        UIUtils::displayText("|         *         *           *          *               *                            |");
-        UIUtils::displayText("|      *         *                 *    *           *              *                    |");
-        UIUtils::displayText("|                       *                   *                           *               |");
-        UIUtils::displayText("|        *                      *                      *                                |");
-        UIUtils::displayText("|   _________________________________________________________________________________   |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|         " + battlePhrases);
-        UIUtils::displayText("|                                                                               by PI   |");
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        BattleMenuSharedContent(player, enemy,battlePhrases);
     } else {
         UIUtils::displayText("Error: Invalid character type for BattleMenu5.");
     }
@@ -526,27 +583,7 @@ void Menu::BattleMenu6(string menuCharacterType, bool doubleDefend, Character* p
     UIUtils::clearScreen(); // Clear screen for a fresh menu display
 
     if (player && enemy) {
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|  Level: " + to_string(player->getLevel()));
-        UIUtils::displayText("|  Armor: " + to_string(player->getCurrArmor()) + " / " + to_string(player->getMaxArmor()) + "   Health: " + to_string(player->getCurrHealth()));
-        UIUtils::displayText("|  Opp. Armor: " + to_string(enemy->getCurrArmor()) + " / " + to_string(enemy->getMaxArmor()) + "   Health: " + to_string(enemy->getCurrHealth()));
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                          *                         *                                  |");
-        UIUtils::displayText("|    *        *                  *        *                                           * |");
-        UIUtils::displayText("|              *   *    *     *        *        *               *                   *   |");
-        UIUtils::displayText("|         *         *           *          *               *                            |");
-        UIUtils::displayText("|               *                 *    *           *              *                     |");
-        UIUtils::displayText("|                       *                   *                           *               |");
-        UIUtils::displayText("|        *                      *                      *                                |");
-        UIUtils::displayText("|   _________________________________________________________________________________   |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|         |            |             |             |             |            |         |");
-        UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|         " + battlePhrases);
-        UIUtils::displayText("|                                                                               by PI   |");
-        UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        BattleMenuSharedContent(player, enemy,battlePhrases);
     } else {
         UIUtils::displayText("Error: Invalid character type for BattleMenu6.");
     }
@@ -610,46 +647,60 @@ void Menu::EndBattleMenu(bool result, int level) {
 }
 
 void Menu::LoadGameMenu(Character &player) {
+    // This function needs careful implementation if player might be null
+    // or if it's supposed to create/reinitialize the player.
+    // The mainRPG.cpp currently calls this with *player, which could be null if not initialized.
+    // For now, assuming player is valid or this function handles it.
     string username, characterType;
-    int currHealth, currArmor, level, currXP, maxXP;
-    int currLevel = 1; 
+    int currHealth, currArmor, levelFromFile, currXP, maxXP; // Renamed level to levelFromFile
+    // int currLevel = 1; // This was overriding the loaded level.
 
     UIUtils::displayText("Enter fighter name to load: ");
-    username = UIUtils::getUserInput(""); // Get username using UIUtils.
+    // username = UIUtils::getUserInput(""); // getUserInput reads a whole line, cin >> might be better here
+    cin >> username;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    if (loadGame(username, characterType, currHealth, currArmor, level, currXP, maxXP)) {
-        // Update the player's current state based on the loaded data
-        player.setCharacterType(characterType);
+
+    if (loadGame(username, characterType, currHealth, currArmor, levelFromFile, currXP, maxXP)) {
+        // If player object is passed by reference, we can modify it.
+        // However, the type of player (Warrior, Wizard etc.) is fixed at its creation.
+        // Loading should ideally re-create the player object of the correct type.
+        // This is a more complex change. For now, we'll just set stats.
+        // This assumes the 'player' object passed is of the correct Character subclass.
+        
+        player.setCharacterType(characterType); // This might not be ideal if 'player' is already a specific subclass.
+                                            // The type should match what's in the save file.
+        player.setName(username); // Set the name from the save file/username
         player.setCurrHealth(currHealth);
         player.setCurrArmor(currArmor);
-        player.setLevel(currLevel);
+        player.setLevel(levelFromFile); // Use loaded level
+        player.setCurrXP(currXP);
+        player.setMaxXP(maxXP);
         UIUtils::displayText("Game loaded successfully!");
         
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");                      
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                            ------ Loaded Game State ------                            |");
-        UIUtils::displayText("|                               Character Type: " + characterType);                   
-        UIUtils::displayText("|                               Current Health: " + to_string(currHealth));                      
-        UIUtils::displayText("|                               Current Armor: " + to_string(currArmor));                        
-        UIUtils::displayText("|                               Current Level: " + to_string(currLevel));                        
+        UIUtils::displayText("|                               Character Name: " + player.getName());
+        UIUtils::displayText("|                               Character Type: " + player.getCharacterType());                   
+        UIUtils::displayText("|                               Current Health: " + to_string(player.getCurrHealth()) + "/" + to_string(player.getMaxHealth()));                      
+        UIUtils::displayText("|                               Current Armor: " + to_string(player.getCurrArmor()) + "/" + to_string(player.getMaxArmor()));                        
+        UIUtils::displayText("|                               Current Level: " + to_string(player.getLevel()));   
+        UIUtils::displayText("|                               Current XP: " + to_string(player.getCurrXP()) + "/" + to_string(player.getMaxXP()));                     
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                               by PI   |");
+        UIUtils::displayText("|                               Press Enter to continue...                              |");
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-    } 
-    
-    else {
+        cin.get(); // Wait for enter
+    } else {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -672,8 +723,9 @@ void Menu::LoadGameMenu(Character &player) {
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                               by PI   |");
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
+        UIUtils::displayText("Press Enter to continue...");
+        cin.get();
     }
-
     UIUtils::displayText("");
 }
 
@@ -687,16 +739,20 @@ void Menu::SavedGameMenu(Character &player) {
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
+    UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|  Type      : " + player.getCharacterType());
     UIUtils::displayText("|  Level     : " + to_string(player.getLevel()));
     UIUtils::displayText("|  Health    : " + to_string(player.getCurrHealth()) + " / " + to_string(player.getMaxHealth()));
     UIUtils::displayText("|  Armor     : " + to_string(player.getCurrArmor()) + " / " + to_string(player.getMaxArmor()));
+    UIUtils::displayText("|  XP        : " + to_string(player.getCurrXP()) + " / " + to_string(player.getMaxXP()));                                                                                    
+    UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-    UIUtils::displayText("| Options: [R]esume Saved Game    [D]elete Save    [M]ain Menu                          |");
+    UIUtils::displayText("|  Game progress has been saved. Press Enter to return to the Main Menu.                |");
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-    UIUtils::displayText("Enter your choice: ");
+    cin.get();
 }
 
 

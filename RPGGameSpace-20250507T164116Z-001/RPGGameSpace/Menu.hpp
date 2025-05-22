@@ -36,6 +36,7 @@ class Menu {
         void BattleMenu6(string, bool, Character*, Enemy* enemy);
         void EndBattleMenu(bool, int);
         void ViewCharactersMenu(string);
+        void BattleMenuSharedContent(Character *player, Enemy *enemy, const string &battleMessage);
         void QuitMenu();
         void QuitMenu2();
 };
