@@ -12,7 +12,7 @@
 #include "Assassin.hpp"
 
 Wizard::Wizard() {
-    name = "";
+    characterType = "Wizard";
     level = 1;
     maxArmor = 80;
     currArmor = 80;
@@ -23,88 +23,17 @@ Wizard::Wizard() {
 }
 
 Wizard::Wizard(string _name) : Character(_name) {
-    setCharacterType("Wizard");
-    setMaxHealth(1000);
-    setCurrHealth(1000);
-    setMaxArmor(80);
-    setCurrArmor(80);
-    setLevel(1);
-}
-
-string Wizard::getName() {
-    return name;
-}
-
-string Wizard::getAttackType() {
-    return attackType;
-}
-
-int Wizard::getLevel() {
-    return level;
-}
-
-int Wizard::getMaxArmor() {
-    return maxArmor;
-}
-
-int Wizard::getCurrArmor() {
-    return currArmor;
-}
-
-int Wizard::getMaxHealth() {
-    return maxHealth;
-}
-
-int Wizard::getCurrHealth() {
-    return currHealth;
-}
-
-int Wizard::getCurrXP() {
-    return currXP;
-}
-
-int Wizard::getMaxXP() {
-    return maxXP;
-}
-        
-void Wizard::setName(string _name) {
-    name = _name;
-}
-
-void Wizard::setAttackType(string _attackType) {
-    attackType = _attackType;
-}
-
-void Wizard::setLevel(int _level) {
-    level = _level;
-}
-
-void Wizard::setMaxArmor(int _maxArmor) {
-    maxArmor = _maxArmor;
-}
-
-void Wizard::setCurrArmor(int _currArmor) {
-    currArmor = _currArmor;
-}
-
-void Wizard::setMaxHealth(int _maxHealth) {
-    maxHealth = _maxHealth;
-}
-        
-void Wizard::setCurrHealth(int _currHealth) {
-    currHealth = _currHealth;
-}
-
-void Wizard::setCurrXP(int _currXP) {
-    currXP = _currXP;
-}
-        
-void Wizard::setMaxXP(int _maxXP) {
-    maxXP = _maxXP;
+    characterType = "Wizard";
+    maxHealth = 1000;
+    currHealth = 1000;
+    maxArmor = 80;
+    currArmor = 80;
+    level = 1;
+    maxXP = 200;
+    currXP = 0;
 }
 
 int Wizard::attack(const string &attackType) {
-    
     int baseDamage = 0;
     unsigned int armorCap = maxArmor - 10; //armor should not exceed max amount at any particular level
     int healthCap = maxHealth - 50; //health should not exceed max amount at any particular level
@@ -133,13 +62,11 @@ int Wizard::attack(const string &attackType) {
         baseDamage *= 2;
     }
     
-    attackValue = baseDamage;
-    return attackValue;
+    return baseDamage;
 }
 
 int Wizard::attackProbability(const string &attackType) {
-    srand((unsigned int)time(0));
-    int attackProbability = 0;
+    unsigned int attackProbability = 0;
     
     if(attackType == "Heavy" || attackType == "heavy") {
         attackProbability = (rand() % 70) + 1;
@@ -157,7 +84,6 @@ int Wizard::attackProbability(const string &attackType) {
 }
 
 int Wizard::defendProbability(string defendAction) {
-    srand((unsigned int) time(0));
     unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
@@ -173,68 +99,6 @@ int Wizard::defendProbability(string defendAction) {
     }
     
     return defendProbability;
-}
-
-int Wizard::decreaseHealth(string characterType, int attackValue, string attackType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
-    if(characterType == "Warrior" || characterType == "warrior") {
-        attackValue = warrior.attack(attackType);
-    }
-    
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        attackValue = wizard.attack(attackType);
-    }
-    
-    else if(characterType == "Healer" || characterType == "healer") {
-        attackValue = healer.attack(attackType);
-    }
-    
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        attackValue = assassin.attack(attackType);
-    }
-    
-    currHealth = currHealth - attackValue;
-    
-    return currHealth;
-}
-
-int Wizard::decreaseArmor(string characterType, int attackValue, string attackType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
-    if(characterType == "Warrior" || characterType == "warrior") {
-        attackValue = warrior.attack(attackType);
-    }
-    
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        attackValue = wizard.attack(attackType);
-    }
-    
-    else if(characterType == "Healer" || characterType == "healer") {
-        attackValue = healer.attack(attackType);
-    }
-    
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        attackValue = assassin.attack(attackType);
-    }
-    
-    int newArmor = currArmor - attackValue;
-    if (newArmor < 0) {
-        int overflowDamage = -newArmor; // Damage exceeding current armor
-        currArmor = 0;
-        // Apply leftover damage to health
-        currHealth = currHealth - overflowDamage;
-    } else {
-        currArmor = newArmor;
-    }
-
-    return currArmor;
 }
 
 int Wizard::levelUp(const int &currHealth, const int &enemyCurrHealth) {

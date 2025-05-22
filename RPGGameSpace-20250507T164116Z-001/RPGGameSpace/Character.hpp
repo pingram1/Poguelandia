@@ -18,7 +18,7 @@
 using namespace std;
 
 class Character {
-    private:
+    protected:
         string name;
         string characterType;
         string attackType;

@@ -11,8 +11,8 @@
 #include "Healer.hpp"
 #include "Assassin.hpp"
 
-Warrior::Warrior() {
-    name = "";
+Warrior::Warrior() : Character() {
+    characterType = "Warrior";
     level = 1;
     maxArmor = 200;
     currArmor = 200;
@@ -23,84 +23,14 @@ Warrior::Warrior() {
 }
 
 Warrior::Warrior(string _name) : Character(_name) {
-    setCharacterType("Warrior");
-    setMaxHealth(1200);   
-    setCurrHealth(1200);  
-    setMaxArmor(200);    
-    setCurrArmor(200);   
-    setLevel(1);         
-}
-
-string Warrior::getName() {
-    return name;
-}
-
-string Warrior::getAttackType() {
-    return attackType;
-}
-
-int Warrior::getLevel() {
-    return level;
-}
-
-int Warrior::getMaxArmor() {
-    return maxArmor;
-}
-
-int Warrior::getCurrArmor() {
-    return currArmor;
-}
-
-int Warrior::getMaxHealth() {
-    return maxHealth;
-}
-
-int Warrior::getCurrHealth() {
-    return currHealth;
-}
-
-int Warrior::getCurrXP() {
-    return currXP;
-}
-
-int Warrior::getMaxXP() {
-    return maxXP;
-}
-        
-void Warrior::setName(string _name) {
-    name = _name;
-}
-
-void Warrior::setAttackType(string _attackType) {
-    attackType = _attackType;
-}
-
-void Warrior::setLevel(int _level) {
-    level = _level;
-}
-
-void Warrior::setMaxArmor(int _maxArmor) {
-    maxArmor = _maxArmor;
-}
-
-void Warrior::setCurrArmor(int _currArmor) {
-    currArmor = _currArmor;
-}
-
-void Warrior::setMaxHealth(int _maxHealth) {
-    maxHealth = _maxHealth;
-}
-        
-void Warrior::setCurrHealth(int _currHealth) {
-    currHealth = _currHealth;
-}
-
-void Warrior::setCurrXP(int _currXP) {
-    currXP = _currXP;
-}
-        
-void Warrior::setMaxXP(int _maxXP) {
-    maxXP = _maxXP;
+    characterType = "Warrior";
+    maxHealth = 1200;   
+    currHealth = 1200;  
+    maxArmor = 200;    
+    currArmor = 200;   
+    level = 1;   
+    maxXP = 200;
+    currXP = 0;      
 }
 
 int Warrior::attack(const string &attackType) {
@@ -138,12 +68,10 @@ int Warrior::attack(const string &attackType) {
         baseDamage *= 2;
     }
     
-    attackValue = baseDamage;
-    return attackValue;
+    return baseDamage;
 }
 
 int Warrior::attackProbability(const string &attackType) {
-    srand((unsigned int)time(0));
     unsigned int attackProbability = 0;
     
     if(attackType == "Heavy" || attackType == "heavy") {
@@ -162,7 +90,6 @@ int Warrior::attackProbability(const string &attackType) {
 }
 
 int Warrior::defendProbability(string defendAction) {
-    srand((unsigned int)time(0));
     unsigned int defendProbability = 0;
     
     if(defendAction == "Block" || defendAction == "block") {
@@ -178,68 +105,6 @@ int Warrior::defendProbability(string defendAction) {
     }
     
     return defendProbability;
-}
-
-int Warrior::decreaseHealth(string characterType, int attackValue, string attackType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
-    if(characterType == "Warrior" || characterType == "warrior") {
-        attackValue = warrior.attack(attackType);
-    }
-    
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        attackValue = wizard.attack(attackType);
-    }
-    
-    else if(characterType == "Healer" || characterType == "healer") {
-        attackValue = healer.attack(attackType);
-    }
-    
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        attackValue = assassin.attack(attackType);
-    }
-    
-    currHealth = currHealth - attackValue;
-    
-    return currHealth;
-}
-
-int Warrior::decreaseArmor(string characterType, int attackValue, string attackType) {
-    Warrior warrior;
-    Wizard wizard;
-    Healer healer;
-    Assassin assassin;
-    
-    if(characterType == "Warrior" || characterType == "warrior") {
-        attackValue = warrior.attack(attackType);
-    }
-    
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        attackValue = wizard.attack(attackType);
-    }
-    
-    else if(characterType == "Healer" || characterType == "healer") {
-        attackValue = healer.attack(attackType);
-    }
-    
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        attackValue = assassin.attack(attackType);
-    }
-    
-    int newArmor = currArmor - attackValue;
-    if (newArmor < 0) {
-        int overflowDamage = -newArmor; // Damage exceeding current armor
-        currArmor = 0;
-        // Apply leftover damage to health
-        currHealth = currHealth - overflowDamage;
-    } else {
-        currArmor = newArmor;
-    }
-
-    return currArmor;
 }
 
 int Warrior::levelUp(const int &currHealth, const int &enemyCurrHealth) {

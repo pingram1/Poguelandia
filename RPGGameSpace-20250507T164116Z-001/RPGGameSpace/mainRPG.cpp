@@ -71,19 +71,10 @@ void showTitle() {
  * enemyCurrHealth: The current health points of the enemy.
  * return True if the player wins, false if the enemy wins or in case of a tie.
  */
-bool result(int currHealth, int enemyCurrHealth) {
-    // User wins
-    if((enemyCurrHealth <= 0) && (currHealth > 0)) {
-        return true;
-    }
-    
-    // CPU wins
-    else if((currHealth <= 0) && (enemyCurrHealth > 0)) {
-        return false;
-    }
-
-    // In case of a tie or other situations
-    return false;
+bool result(const Character* p, const Character* e) {
+    if (e->getCurrHealth() <= 0 && p->getCurrHealth() > 0) return true; // Player wins
+    if (p->getCurrHealth() <= 0 && e->getCurrHealth() > 0) return false; // CPU wins
+    return false; // Tie or both alive (though loop should handle both alive)
 }
 
 // Determines if the player's attack is more likely to succeed than the enemy's attack.
@@ -102,93 +93,13 @@ bool userAttackLanded(int attackProbability, int enemyDefendProbability) {
 }
 
 // Checks if both the player and the enemy still have health points remaining.
-bool hasHealth(int currHealth, int enemyCurrHealth) {
-    return currHealth > 0 && enemyCurrHealth > 0;
+bool hasHealth(const Character* p, const Character* e) {
+    return p->getCurrHealth() > 0 && e->getCurrHealth() > 0;
 }
 
-/**
- * Calculates the attack value based on the character type and action.
- * characterType: The type of character performing the attack.
- * action: The specific action to be executed.
- * return The calculated attack value.
- */
-int calculateAttackValue(Character* character, string action) {
-    // Instantiate appropriate character class based on characterType and call its attack method
-    return character->attack(action);
-}
-
-/** 
- * Determines the attack value of the character based on the initiative of the battle.
- * fightFirst: Specifies which character strikes first (1 for player, 2 for enemy). 
- */
-int firstHit(int fightFirst, Character* character, string enemyAction, string enemyCharacterType) {
-    Enemy enemy;
-    int attackValue = 0;
-    srand((unsigned int) time(0));
-    
-    if(fightFirst == 1) {
-        attackValue = calculateAttackValue(character, enemyAction);
-    }
-        
-    else if(fightFirst == 2) {
-        attackValue = enemy.attack(enemyAction, enemyCharacterType);
-    }
-    
-    return attackValue;
-}
-
-
-// Initiates the battle for the player character.
-int UserBattle(Character* character, string action) {
-    return calculateAttackValue(character, action);
-}
-
-// Initiates the battle for the CPU (enemy) character.
-int CPUBattle(string enemyCharacterType, string enemyAction) {
-    Enemy enemy;
-    
-    // Check if enemyAction is one of the expected values
-    if((enemyAction != "Light" && enemyAction != "Normal" && enemyAction != "Heavy") || (enemyAction != "light" && enemyAction != "normal" && enemyAction != "heavy")) {
-        UIUtils::displayText("Error: Invalid action type '" + enemyAction + "'");
-        return -1;  // Return an error value
-    }
-    
-    // If enemyAction is valid, calculate and return the attack value
-    int enemyAttackValue = enemy.attack(enemyAction, enemyCharacterType);
-    
-    return enemyAttackValue;
-}
-
-void createEnemy(Enemy* enemy, const string& enemyCharacterType) {
-    if (enemyCharacterType == "Warrior") {
-        enemy->setCharacterType("Warrior");
-        enemy->setMaxHealth(1200);
-        enemy->setCurrHealth(1200);
-        enemy->setMaxArmor(200);
-        enemy->setCurrArmor(200);
-        enemy->setLevel(1);
-    } else if (enemyCharacterType == "Wizard") {
-        enemy->setCharacterType("Wizard");
-        enemy->setMaxHealth(1000);
-        enemy->setCurrHealth(1000);
-        enemy->setMaxArmor(80);
-        enemy->setCurrArmor(80);
-        enemy->setLevel(1);
-    } else if (enemyCharacterType == "Healer") {
-        enemy->setCharacterType("Healer");
-        enemy->setMaxHealth(1300);
-        enemy->setCurrHealth(1300);
-        enemy->setMaxArmor(300);
-        enemy->setCurrArmor(300);
-        enemy->setLevel(1);
-    } else if (enemyCharacterType == "Assassin") {
-        enemy->setCharacterType("Assassin");
-        enemy->setMaxHealth(1100);
-        enemy->setCurrHealth(1100);
-        enemy->setMaxArmor(150);
-        enemy->setCurrArmor(150);
-        enemy->setLevel(1);
-    }
+void createEnemy(Enemy*& enemyPtrRef, const string& enemyCharacterType) { // Note: Enemy*&
+    delete enemyPtrRef; // Safely delete the old enemy object if it exists
+    enemyPtrRef = new Enemy("Mysterious Foe", enemyCharacterType);
 }
 
 int main() {
@@ -215,7 +126,7 @@ int main() {
     int fightFirst = rand() % 2 + 1;
     
     string attackType, name, characterType, defendType;
-    string enemyAttackType, enemyCharacterType, enemyAction;
+    string enemyAttackType, enemyCharacterType, enemyCurrentAction;
     unsigned int attackProbability = 0;
     unsigned int defendProbability = 0;
     unsigned int enemyAttackProbability = 0;
@@ -314,105 +225,200 @@ int main() {
                         //Randomizes enemy type and actions to create realistic opponent
                         enemyCharacterType = enemy->randomizeEnemyTypes();
                         createEnemy(enemy, enemyCharacterType); 
-                        enemyAction = enemy->randomizeEnemyActions();
-                        enemyCurrArmor = enemy->getCurrArmor();
+                        enemyCurrentAction = enemy->randomizeEnemyActions();
+                        //enemyCurrArmor = enemy->getCurrArmor();
                         
                         UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                         cin >> action;
+
+                        unsigned int playerAttackProb = 0;
+                        unsigned int playerDefendProb = 0;
+                        bool playerIsAttacking = (action == "Light" || action == "light" || action == "Normal" || action == "normal" || action == "Heavy" || action == "heavy");
+                        
+                        if (playerIsAttacking) {
+                            playerAttackProb = player->attackProbability(action);
+                        }
+                        else if (action == "Block" || action == "Parry" || action == "Evade" || action == "block" || action == "parry" || action == "evade") { // Player is defending
+                            playerDefendProb = player->defendProbability(action);
+                        } 
+                        else {
+                            UIUtils::displayText("Invalid action! Turn skipped."); // Or re-prompt
+                            continue;
+                        }
+
+                        // Enemy Action and Probabilities
+                        unsigned int enemyAttackProb = 0;
+                        unsigned int enemyDefendProb = 0;
+                        bool enemyIsAttacking = (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy" || enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade");
+
+                        if (enemyIsAttacking) {
+                            enemyAttackProb = enemy->attackProbability(enemyCurrentAction);
+                        } 
+                        else { // Enemy is defending
+                            enemyDefendProb = enemy->defendProbability(enemyCurrentAction);
+                        }
+
+                        // Display Probabilities (as you do with UIUtils::displayText)
+                        if (playerIsAttacking && !enemyIsAttacking) { // Player Attacks, Enemy Defends
+                            UIUtils::displayText("Player Attack (" + action + "): " + to_string(playerAttackProb) + "% vs. Enemy Defend (" + enemyCurrentAction + "): " + to_string(enemyDefendProb) + "%");
+                            if (playerAttackProb > enemyDefendProb) { // Player's attack lands
+                                UIUtils::displayText("Your attack connects!");
+                                battleManager.handleAttack(player, enemy, action); // Pass player's action
+                                menu.BattleMenu4(player->getCharacterType(), true, player, enemy);
+                            } 
+                            else {
+                                UIUtils::displayText("Your attack is blocked or evaded!");
+                                menu.BattleMenu4(player->getCharacterType(), false, player, enemy);
+                            }
+                        } 
+                        else if (playerIsAttacking && enemyIsAttacking) { // Player Attacks, Enemy Attacks (Clash)
+                            UIUtils::displayText("Clash! Player Attack (" + action + "): " + to_string(playerAttackProb) + "% vs. Enemy Attack (" + enemyCurrentAction + "): " + to_string(enemyAttackProb) + "%");
+                            // Resolve who hits. Example: fightFirst or higher probability.
+                            // This part needs to reflect your desired clash mechanics.
+                            // Simplified: If player's probability is higher, player hits. Enemy might still hit if they survive.
+                            // Or, only one hits.
+                            bool playerHitsInClash = (playerAttackProb > enemyAttackProb);
+                            bool enemyHitsInClash = (enemyAttackProb > playerAttackProb); 
+                            if (playerAttackProb == enemyAttackProb) { // Tie? Maybe both hit or neither.
+                                UIUtils::displayText("Attacks are evenly matched!");
+                                // Decide outcome: for now, let's say player hits if fightFirst == 1 in tie, else enemy.
+                                // Inside Attack vs. Attack
+                                if (fightFirst == 1) { // Player has initiative
+                                    if (playerAttackProb > enemyAttackProb) { /* Player hits */ 
+                                        battleManager.handleAttack(player, enemy, action); 
+                                    }
+                                    if (enemy->getCurrHealth() > 0 && enemyAttackProb > playerAttackProb) { /* Enemy hits */ 
+                                        battleManager.handleAttack(enemy, player, enemyCurrentAction); 
+                                    }
+                                    // Handle ties: 
+                                    if (playerAttackProb == enemyAttackProb) { /* Player hits due to initiative */ 
+                                        battleManager.handleAttack(player, enemy, action); 
+                                    }
+                                } 
+                                else { // Enemy has initiative
+                                    if (enemyAttackProb > playerAttackProb) { /* Enemy hits */ 
+                                        battleManager.handleAttack(enemy, player, enemyCurrentAction); 
+                                    }
+                                    if (player->getCurrHealth() > 0 && playerAttackProb > enemyAttackProb) { /* Player hits */ 
+                                        battleManager.handleAttack(player, enemy, action); 
+                                    }
+                                    // Handle ties: 
+                                    if (playerAttackProb == enemyAttackProb) { /* Enemy hits due to initiative */ 
+                                        battleManager.handleAttack(enemy, player, enemyCurrentAction); 
+                                    }
+                                }
+                            }
+
+                            if (playerHitsInClash) {
+                                UIUtils::displayText("Your attack lands in the clash!");
+                                battleManager.handleAttack(player, enemy, action);
+                                menu.BattleMenu4(player->getCharacterType(), true, player, enemy);
+                            }
+                            if (enemy->getCurrHealth() > 0 && enemyHitsInClash) { // Enemy can only hit if alive and won the clash roll for their hit
+                                UIUtils::displayText("The enemy's attack lands in the clash!");
+                                battleManager.handleAttack(enemy, player, enemyCurrentAction);
+                                // Which menu to call if player also hit? Or if only enemy hit?
+                                menu.BattleMenu5(player->getCharacterType(), action, false, player, enemy); // If player got hit
+                            }
+                            if (!playerHitsInClash && !enemyHitsInClash && playerAttackProb != enemyAttackProb) { // One missed, other didn't hit due to lower prob
+                                UIUtils::displayText("Both attacks miss in the chaos!");
+                            }
+
+                        else if (!playerIsAttacking && enemyIsAttacking) { // Player Defends, Enemy Attacks
+                            UIUtils::displayText("Player Defend (" + action + "): " + to_string(playerDefendProb) + "% vs. Enemy Attack (" + enemyCurrentAction + "): " + to_string(enemyAttackProb) + "%");
+                            if (playerDefendProb > enemyAttackProb) {
+                                UIUtils::displayText("You successfully defend!");
+                                menu.BattleMenu5(player->getCharacterType(), action, true, player, enemy);
+                            } 
+                            else {
+                                UIUtils::displayText("The enemy's attack gets through!");
+                                battleManager.handleAttack(enemy, player, enemyCurrentAction); // Pass enemy's action
+                                menu.BattleMenu5(player->getCharacterType(), action, false, player, enemy);
+                            }
+                        } 
+                        else { // Player Defends, Enemy Defends
+                            UIUtils::displayText("Both defend! Player Defend (" + action + "): " + to_string(playerDefendProb) + "% vs. Enemy Defend (" + enemyCurrentAction + "): " + to_string(enemyDefendProb) + "%");
+                            UIUtils::displayText("A momentary standoff!");
+                            menu.BattleMenu6(player->getCharacterType(), true, player, enemy);
+                        }
+
+                        // Check for game over after the round
+                        if (player->getCurrHealth() <= 0 || enemy->getCurrHealth() <= 0) {
+                            break; // Exit battle loop
+                        }
+                    }
                         
                         //Gets probability of performing this attack based on the attack/defend type
                         if(action == "Light" || action == "Normal" || action == "Heavy") {
                             attackType = action;
                             attackProbability = player->attackProbability(attackType);
                         }
-
                         if(action == "Block" || action == "Parry" || action == "Evade" ||action == "block" || action == "parry" || action == "evade") {
                             defendType = action;
                             defendProbability = player->defendProbability(defendType);
                         }
-                            
-                        //Declared outside the switch statement (fightFirst)
-                        if(fightFirst == 1) {
-                            if(action == "Light" || action == "Normal" || action == "Heavy") {
-                                attackValue = firstHit(fightFirst, player, enemyAction, enemyCharacterType);
-                                enemyDefendProbability = enemy->defendProbability(enemyAction);
-                                enemyAttackProbability = enemy->attackProbability(enemyAction);
-                            }
-                        }
-                        
-                        else if(fightFirst == 2) {
-                            if(enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy") {
-                                enemyAttackProbability = enemy->attackProbability(enemyAction);
-                                enemyAttackValue = enemy->attack(enemyAction, enemyCharacterType);
-                            }
-                            
-                            if(enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade") {
-                                enemyDefendProbability = enemy->defendProbability(enemyAction);
-                            }
-                        }
-                        
+                                                    
                         //Compares every combo of user actions vs. CPU actions
                         bool attackExecuted = userAttackLanded(attackProbability, enemyDefendProbability);
                         bool defendExecuted = userDefendExecuted(defendProbability, enemyAttackProbability);
                         bool attackExecuted2 = attackVSattack(attackProbability, enemyAttackProbability);
-                        
+                                                
                         //Shows percentages in game to see which action will be executed in combat
                         UIUtils::displayText("");
-                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                             UIUtils::displayText("Attack: " + to_string(attackProbability) + " vs. Enemy Attack: " + to_string(enemyAttackProbability));
                         }
-                        
-                        else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                                                
+                        else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                             UIUtils::displayText("Attack: " + to_string(attackProbability) + " vs. Enemy Defend: " + to_string(enemyDefendProbability));
                         }
-                        
-                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                                                
+                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                             UIUtils::displayText("Defend: " + to_string(defendProbability) + " vs. Enemy Attack: " + to_string(enemyAttackProbability));
                         }
-                        
-                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                                                
+                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                             UIUtils::displayText("Defend: " + to_string(defendProbability) + " vs. Enemy Defend: " + to_string(enemyDefendProbability));
                         }
                         UIUtils::displayText("");
-                        
-                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                                                
+                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                             if(attackExecuted == true) {
                                 battleManager.handleAttack(player, enemy, action);
                                 menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                             }
-                            
+                                                    
                             else if(attackExecuted == false) {
                                 menu.BattleMenu4(characterType, attackExecuted, player, enemy);
                             }
                         }
-                        
-                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                                                
+                        if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                             if(attackExecuted2 == true) {
                                 battleManager.handleAttack(player, enemy, action);
                                 menu.BattleMenu4(characterType, attackExecuted2, player, enemy);
                             }
-                             
+                                                    
                             else if(attackExecuted2 == false) {
-                                battleManager.handleAttack(player, enemy, action); 
+                                battleManager.handleAttack(player, enemy, action);
                                 menu.BattleMenu5(characterType, action, attackExecuted2, player, enemy);
-                            }
+                                }
                         }
-                        
-                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                                                
+                        else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                             if(defendExecuted == true) {
                                 menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                             }
-                            
-                            else if(defendExecuted == false) {
-                                battleManager.handleAttack(player, enemy, action);
-                                menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
-                            }
+                                                    
+                        else if(defendExecuted == false) {
+                            battleManager.handleAttack(player, enemy, action);
+                            menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                         }
 
                         // 
-                        while(hasHealth(currHealth, enemyCurrHealth) == true) {
-                            enemyAction = enemy->randomizeEnemyActions();
-                            
+                        while(hasHealth(player, enemy) == true) {
+                            enemyCurrentAction = enemy->randomizeEnemyActions();
+                                                
                             UIUtils::displayText("Select action: Attack [Light  Normal  Heavy], Defend [Block  Parry  Evade]");
                             cin >> action; // ... (Get user input)
                             
@@ -431,24 +437,24 @@ int main() {
                             attackExecuted2 = attackVSattack(attackProbability, enemyAttackProbability);
                             
                             UIUtils::displayText("");
-                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                                 UIUtils::displayText("Attack chance: " + to_string(attackProbability) + " vs. Enemy Attack chance: " + to_string(enemyAttackProbability));
                             }
                             
-                            else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                            else if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                                 UIUtils::displayText("Attack chance: " + to_string(attackProbability) + " vs. Enemy Defend chance: " + to_string(enemyDefendProbability));
                             }
                             
-                            else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                            else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                                 UIUtils::displayText("Defend chance: " + to_string(defendProbability) + " vs. Enemy Attack chance: " + to_string(enemyAttackProbability));
                             }
                             
-                            else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                            else if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                                 UIUtils::displayText("Defend chance: " + to_string(defendProbability) + " vs. Enemy Defend chance: " + to_string(enemyDefendProbability));
                             }
                             UIUtils::displayText("");
                             
-                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                                 //User attack landed on CPU (defense), take health from CPU
                                 if(attackExecuted == true) {
                                     battleManager.handleAttack(player, enemy, action);
@@ -461,8 +467,7 @@ int main() {
                                 }
                             }
                             
-                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
-                                //User attack landed on CPU (offense), take health from CPU
+                            if((action == "Light" || action == "Normal" || action == "Heavy") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy"))
                                 if(attackExecuted2 == true) {
                                     battleManager.handleAttack(player, enemy, action);
                                     menu.BattleMenu4(characterType, attackExecuted2, player, enemy);
@@ -475,7 +480,7 @@ int main() {
                             }
                             
                             
-                            if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Light" || enemyAction == "Normal" || enemyAction == "Heavy")) {
+                            if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Light" || enemyCurrentAction == "Normal" || enemyCurrentAction == "Heavy")) {
                                 if(defendExecuted == true) {
                                     menu.BattleMenu5(characterType, action, defendExecuted, player, enemy);
                                 }
@@ -486,14 +491,14 @@ int main() {
                                 }
                             }
                             
-                            if((action == "Block" || action == "Parry" || action == "Evade") && (enemyAction == "Block" || enemyAction == "Parry" || enemyAction == "Evade")) {
+                            if((action == "Block" || action == "Parry" || action == "Evade") && (enemyCurrentAction == "Block" || enemyCurrentAction == "Parry" || enemyCurrentAction == "Evade")) {
                                 bool doubleDefend = true;
                                 menu.BattleMenu6(characterType, doubleDefend, player, enemy);
                             }
                         }
                     }
                     
-                    bool fightResult = result(currHealth, enemyCurrHealth);
+                    bool fightResult = result(player, enemy);
                     
                     if(fightResult) {
                         player->levelUp(currHealth, enemyCurrHealth);

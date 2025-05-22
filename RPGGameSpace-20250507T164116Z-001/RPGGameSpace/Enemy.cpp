@@ -24,114 +24,71 @@ Enemy::Enemy() {
     currXP = 0;
 }
 
-Enemy::Enemy(string _name) : Character(_name) {
-}
+Enemy::Enemy(string _name, string _enemyCharacterType) : Character(_name) {
+    characterType = _enemyCharacterType; // Set the character type
+    level = 1;
+    currXP = 0;
+    maxXP = 200; // Standard XP
 
-// Getters
-string Enemy::getName() {
-    return name;
-}
-
-string Enemy::getAttackType() {
-    return attackType;
-}
-
-int Enemy::getLevel() {
-    return level;
-}
-
-int Enemy::getMaxArmor() {
-    return maxArmor;
-}
-
-int Enemy::getCurrArmor() {
-    return currArmor;
-}
-
-int Enemy::getMaxHealth() {
-    return maxHealth;
-}
-
-int Enemy::getCurrHealth() {
-    return currHealth;
-}
-
-int Enemy::getCurrXP() {
-    return currXP;
-}
-
-int Enemy::getMaxXP() {
-    return maxXP;
-}
-
-// Setters
-void Enemy::setName(string _name) {
-    name = _name;
-}
-
-void Enemy::setCharacterType(string _characterType) {
-    characterType = _characterType;
-}
-
-void Enemy::setAttackType(string _attackType) {
-    attackType = _attackType;
-}
-
-void Enemy::setLevel(int _level) {
-    level = _level;
-}
-
-void Enemy::setMaxArmor(int _maxArmor) {
-    maxArmor = _maxArmor;
-}
-
-void Enemy::setCurrArmor(int _currArmor) {
-    currArmor = _currArmor;
-}
-
-void Enemy::setMaxHealth(int _maxHealth) {
-    maxHealth = _maxHealth;
-}
-
-void Enemy::setCurrHealth(int _currHealth) {
-    currHealth = _currHealth;
-}
-
-void Enemy::setCurrXP(int _currXP) {
-    currXP = _currXP;
-}
-
-void Enemy::setMaxXP(int _maxXP) {
-    maxXP = _maxXP;
+    if (_enemyCharacterType == "Warrior") {
+        maxHealth = 1200; currHealth = 1200;
+        maxArmor = 200; currArmor = 200;
+    } else if (_enemyCharacterType == "Wizard") {
+        maxHealth = 1000; currHealth = 1000;
+        maxArmor = 80; currArmor = 80;
+    } else if (_enemyCharacterType == "Healer") {
+        maxHealth = 1300; currHealth = 1300;
+        maxArmor = 300; currArmor = 300;
+    } else if (_enemyCharacterType == "Assassin") {
+        maxHealth = 1100; currHealth = 1100;
+        maxArmor = 150; currArmor = 150;
+    } else { // Default/Generic Enemy Stats if type is unknown
+        maxHealth = 1150; currHealth = 1150;
+        maxArmor = 180; currArmor = 180;
+    }
 }
 
 // Override the pure virtual function attack(const string&) from Character.
 // This override simply calls the two-argument version, passing the enemy's character type.
 int Enemy::attack(const string &action) {
-    return attack(action, getCharacterType());
-}
+    int baseDamage = 0;
+    string enemyOwnType = getCharacterType(); // Or this->characterType if protected
 
-// Two-argument attack function. It chooses a damage value based on the provided character type.
-int Enemy::attack(string attackType, string charType) {
-    if (charType == "Warrior") {
-        Warrior warriorEnemy;
-        return warriorEnemy.attack(attackType);
-    } else if (charType == "Wizard") {
-        Wizard wizardEnemy;
-        return wizardEnemy.attack(attackType);
-    } else if (charType == "Healer") {
-        Healer healerEnemy;
-        return healerEnemy.attack(attackType);
-    } else if (charType == "Assassin") {
-        Assassin assassinEnemy;
-        return assassinEnemy.attack(attackType);
+    // This should mirror the player classes' base damages, or have unique enemy values.
+    if (enemyOwnType == "Warrior") {
+        if (action == "Light") baseDamage = 75; // Warrior enemy light attack
+        else if (action == "Normal") baseDamage = 100;
+        else if (action == "Heavy") baseDamage = 125;
+        // Add War Cry logic if enemy warriors can also have it
+        // if (getCurrHealth() <= /* some threshold */) baseDamage *= 2;
+    } else if (enemyOwnType == "Wizard") {
+        if (action == "Light") baseDamage = 60; // Wizard enemy light attack
+        else if (action == "Normal") baseDamage = 90;
+        else if (action == "Heavy") baseDamage = 130;
+        // Add Mystic Heal logic for enemy wizards if they use light attacks
+        // if (action == "Light") { /* heal self slightly */ }
+    } else if (enemyOwnType == "Healer") {
+        // ... Healer enemy logic (Chronic Abrasion, First Aid)
+    } else if (enemyOwnType == "Assassin") {
+        // ... Assassin enemy logic (Sneaky Quick)
+    } else {
+        // Default enemy attack if type is unknown or generic
+        if (action == "Light") baseDamage = 50;
+        else if (action == "Normal") baseDamage = 70;
+        else if (action == "Heavy") baseDamage = 90;
     }
-    return 0;
+
+    // Generic critical hit chance for all enemies (can be type-specific too)
+    const int critChance = 15; // e.g., 15% crit chance for enemies
+    if (rand() % 100 < critChance) {
+        cout << "ENEMY CRITICAL HIT!" << endl;
+        baseDamage *= 2;
+    }
+    return baseDamage;
 }
 
 int Enemy::attackProbability(const string &attackType) {
-    srand((unsigned int)time(0));
-    int attackProbability = 0;
+    unsigned int attackProbability = 0;
 
     if(attackType == "Heavy" || attackType == "heavy") {
         attackProbability = (rand() % 50) + 1;
@@ -148,7 +105,6 @@ int Enemy::attackProbability(const string &attackType) {
 
 int Enemy::defendProbability(string enemyAction) {
     unsigned int defendProbability = 0;
-    srand((unsigned int) time(0));
 
     if(enemyAction == "Block" || enemyAction == "block") {
         defendProbability = rand() % 100;
@@ -163,28 +119,6 @@ int Enemy::defendProbability(string enemyAction) {
     return defendProbability;
 }
 
-int Enemy::decreaseHealth(string characterType, int attackValue, string attackType) {
-    if(characterType == "Warrior" || characterType == "warrior") {
-        Warrior warrior;
-        attackValue = warrior.attack(attackType);
-    }
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        Wizard wizard;
-        attackValue = wizard.attack(attackType);
-    }
-    else if(characterType == "Healer" || characterType == "healer") {
-        Healer healer;
-        attackValue = healer.attack(attackType);
-    }
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        Assassin assassin;
-        attackValue = assassin.attack(attackType);
-    }
-
-    currHealth = currHealth - attackValue;
-    return currHealth;
-}
-
 string Enemy::randomizeEnemyTypes() {
     string enemyType = "";
     string enemy1 = "Warrior";
@@ -192,7 +126,6 @@ string Enemy::randomizeEnemyTypes() {
     string enemy3 = "Healer";
     string enemy4 = "Assassin";
 
-    srand((unsigned int) time(0));
     int randNum = rand() % 4 + 1;
 
     if(randNum == 1) {
@@ -211,6 +144,15 @@ string Enemy::randomizeEnemyTypes() {
     return enemyType;
 }
 
+string Enemy::randomizeEnemyTypesStatic() {
+    string enemyType = "";
+    string types[] = {"Warrior", "Wizard", "Healer", "Assassin"};
+    int randNum = rand() % 4;
+    enemyType = types[randNum];
+    
+    return enemyType;
+}
+
 string Enemy::randomizeEnemyActions() {
     string enemyAction = "";
     string action1 = "Light";
@@ -220,7 +162,6 @@ string Enemy::randomizeEnemyActions() {
     string action5 = "Parry";
     string action6 = "Evade";
 
-    srand((unsigned int) time(0));
     int randNum = (rand() % 6) + 1;
 
     if(randNum == 1) {
@@ -245,28 +186,6 @@ string Enemy::randomizeEnemyActions() {
     return enemyAction;
 }
 
-int Enemy::decreaseArmor(string characterType, int attackValue, string attackType) {
-    if(characterType == "Warrior" || characterType == "warrior") {
-        Warrior warrior;
-        attackValue = warrior.attack(attackType);
-    }
-    else if(characterType == "Wizard" || characterType == "wizard") {
-        Wizard wizard;
-        attackValue = wizard.attack(attackType);
-    }
-    else if(characterType == "Healer" || characterType == "healer") {
-        Healer healer;
-        attackValue = healer.attack(attackType);
-    }
-    else if(characterType == "Assassin" || characterType == "assassin") {
-        Assassin assassin;
-        attackValue = assassin.attack(attackType);
-    }
-
-    currArmor = currArmor - attackValue;
-    return currArmor;
-}
-
 int Enemy::levelUp(const int &currHealth, const int &enemyCurrHealth) {
     if ((enemyCurrHealth <= 0) && (currHealth > enemyCurrHealth)) {
         currXP += 500;
@@ -280,8 +199,4 @@ int Enemy::levelUp(const int &currHealth, const int &enemyCurrHealth) {
         level++;
     }
     return level;
-}
-
-string Enemy::getCharacterType() {
-    return characterType;
 }
