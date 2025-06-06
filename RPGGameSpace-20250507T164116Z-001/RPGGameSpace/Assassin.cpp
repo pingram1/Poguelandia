@@ -90,7 +90,7 @@ int Assassin::attack(const string &action) { // Changed parameter name for clari
     // Ensure srand() is called ONLY ONCE in main()
     const int critChance = 25; // Assassin's critical hit chance (e.g., 25%)
     if (rand() % 100 < critChance) {
-        UIUtils::displayText(std::string(BOLD) + std::string(RED) + "CRITICAL HIT!" + RESET);
+        UIUtils::displayText(string(BOLD) + string(RED) + "CRITICAL HIT!" + RESET);
         baseDamage *= 2; // Standard double damage for a critical hit (can be class-specific)
     }
     
@@ -130,7 +130,7 @@ int Assassin::defendProbability(string defendAction) {
     // Assassins have 50% chance to evade an attack
     else if(defendAction == "Evade" || defendAction == "evade") {
         if (rand() % 2 == 0) { // 50% chance
-             UIUtils::displayText(std::string(BOLD) + getName() + " deftly evades!" + RESET);
+             UIUtils::displayText(string(BOLD) + getName() + " deftly evades!" + RESET);
             defendProbability = 100; // Successful full evade
         } else {
             defendProbability = (rand() % 50) + 1; // Failed full evade, but still some chance
@@ -154,7 +154,7 @@ int Assassin::levelUp(const int &currHealth, const int &enemyCurrHealth) {
         this->level++;
         this->currXP -= this->maxXP; // Carry over excess XP
         this->maxXP = static_cast<int>(this->maxXP * 1.5); // Increase XP needed for next level (e.g., by 50%)
-        UIUtils::displayText(std::string(BOLD) + getName() + " leveled up to Level " + std::to_string(this->level) + "!" + RESET);
+        UIUtils::displayText(string(BOLD) + getName() + " leveled up to Level " + to_string(this->level) + "!" + RESET);
         // Potentially increase stats on level up here or in a separate Character::performLevelUpStats() method
     }
     return this->level;

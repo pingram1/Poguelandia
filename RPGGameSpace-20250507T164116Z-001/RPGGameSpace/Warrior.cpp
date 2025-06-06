@@ -59,7 +59,7 @@ int Warrior::attack(const string &action) {
         }
     }
     else { // Special Ability: War Cry (currHealth <= 250)
-        UIUtils::displayText(std::string(BOLD) + getName() + " unleashes a War Cry!" + RESET); // Feedback for ability
+        UIUtils::displayText(string(BOLD) + getName() + " unleashes a War Cry!" + RESET); // Feedback for ability
         if(action == "Light" || action == "light") {
             baseDamage = 160; // Example: War Cry doubles light damage
         }
@@ -134,7 +134,7 @@ int Warrior::levelUp(const int &currHealth, const int &enemyCurrHealth) {
         this->level++;
         this->currXP -= this->maxXP; // Carry over excess XP
         this->maxXP = static_cast<int>(this->maxXP * 1.5); // Increase XP needed for next level (e.g., by 50%)
-        UIUtils::displayText(std::string(BOLD) + getName() + " leveled up to Level " + std::to_string(this->level) + "!" + RESET);
+        UIUtils::displayText(string(BOLD) + getName() + " leveled up to Level " + to_string(this->level) + "!" + RESET);
         // Potentially increase stats on level up here or in a separate Character::performLevelUpStats() method
     }
     return this->level;

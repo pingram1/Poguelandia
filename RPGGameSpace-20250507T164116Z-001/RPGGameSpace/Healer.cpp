@@ -103,7 +103,7 @@ int Healer::attack(const string &action) { // Parameter name changed for clarity
     }
 
     if (chronicAbrasionTriggered) {
-        UIUtils::displayText(std::string(BOLD) + getName() + "'s Chronic Abrasion empowers the " + action + " attack!" + RESET);
+        UIUtils::displayText(string(BOLD) + getName() + "'s Chronic Abrasion empowers the " + action + " attack!" + RESET);
     }
 
     // --- Apply Critical Hit ---

@@ -23,6 +23,8 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -33,6 +35,81 @@ using namespace std;
 #define YELLOW "\033[33m"
 #define CYAN "\033[36m"
 #define BOLD "\033[1m"
+#define DARK_GRAY "\033[90m" // Example: for cave walls or less prominent elements
+#define BROWN "\033[33m" // Can be used for ground or tree trunks
+
+const vector<string> ARENA_FLOOR_ART = {
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+    " .       .       .       .       .       .       .       .       .       . ",
+    "_______________________________________________________________________________"
+};
+
+const vector<string> FOREST_BACKDROP_ART = {
+    "          /\\              /\\              /\\          ",
+    "         /  \\            /  \\            /  \\         ",
+    "        /~~~~\\          /~~~~\\          /~~~~\\        ",
+    "       /______\\        /______\\        /______\\       ",
+    "          ||               ||               ||           ",
+    "        ~~\"\"~~        ~~\"\"~~          ~~\"\"~~         "
+};
+
+const vector<string> CAVE_BACKDROP_ART = {
+    "   ^^^^    ^^^^    ^^^^    ^^^^    ^^^^    ^^^^   ",
+    "  /    \\  /    \\  /    \\  /    \\  /    \\  /    \\  ",
+    " (  ()  )(  ()  )(  ()  )(  ()  )(  ()  )(  ()  ) ",
+    "  \\____/  \\____/  \\____/  \\____/  \\____/  \\____/  ",
+    "                                                  ",
+    "    V       V       V       V       V       V     "
+};
+
+// Simple Enemy Sprite Placeholders (adjust width to ~20-25 chars)
+const vector<string> GENERIC_ENEMY_SPRITE = {
+    "       .--''''--.       ",
+    "      /   O  O   \\      ",
+    "      |    --    |      ",
+    "      |  ------  |      ",
+    "       '.______.'       "
+};
+
+const vector<string> WARRIOR_ENEMY_SPRITE = {
+    "       .--\"\"--.       ",
+    "      / [#]  [#] \\      ",
+    "     |   <==>   |      ",
+    "     \\   /\"\"\\   /      ",
+    "      '.______.'       "
+};
+
+const vector<string> WIZARD_ENEMY_SPRITE = {
+    "         _/\\_         ",
+    "        (o--o)        ",
+    "       /(    )\\       ",
+    "      / | \"\" | \\      ",
+    "     (_/------\\_)      "
+};
+
+string centerPad(const std::string& str, int maxWidth) {
+    // Calculate effective length of string without ANSI codes for centering
+    string tempStr = str;
+    size_t pos = 0;
+    while((pos = tempStr.find("\033[", pos)) != std::string::npos) {
+        size_t endPos = tempStr.find("m", pos);
+        if (endPos != std::string::npos) {
+            tempStr.erase(pos, endPos - pos + 1);
+        } else { // Malformed ANSI
+            break;
+        }
+    }
+    int len = tempStr.length();
+
+    if (len >= maxWidth) {
+        // This might truncate in the middle of an ANSI sequence if not careful
+        // For simplicity, we'll just return the original string if it's too long
+        // A more robust solution would strip ANSI before substr, then re-apply if possible
+        return str; 
+    }
+    int padding = (maxWidth - len) / 2;
+    return std::string(padding, ' ') + str; // Original string with ANSI codes is prepended with spaces
+}
 
 // Helper function to generate a formatted health and armor bar string
 // This function is local to Menu.cpp
@@ -163,12 +240,18 @@ void Menu::BaseGameMenu(string menuName, string menuCharacterType, Character* pl
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|  Character Name: " + menuName);
         UIUtils::displayText("|  Character Type: " + menuCharacterType);
-        string playerBar = getHealthBarString("Your Stats", player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
+        string playerBar = getHealthBarString("", player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
         string playerLine = "| " + playerBar;
         size_t paddingNeeded = 0;
-        if (75 > playerBar.length()) { // Assuming content width of 75 for the bar + padding
-            paddingNeeded = 75 - playerBar.length();
+        // Calculate visible length of playerBar for padding
+        string tempPlayerBar = playerBar;
+        size_t pos_pb = 0;
+        while((pos_pb = tempPlayerBar.find("\033[", pos_pb)) != string::npos) {
+            size_t endPos_pb = tempPlayerBar.find("m", pos_pb);
+            if (endPos_pb != string::npos) { tempPlayerBar.erase(pos_pb, endPos_pb - pos_pb + 1); } 
+            else { break; }
         }
+        if (75 > tempPlayerBar.length()) { paddingNeeded = 75 - tempPlayerBar.length(); }
         playerLine.append(paddingNeeded, ' '); 
         playerLine += " |";
         UIUtils::displayText(playerLine);
@@ -250,67 +333,47 @@ void Menu::QuitMenu2() {
 }
 
 void Menu::BattleMenu1(string menuCharacterType, Character* player) {
-    UIUtils::clearScreen(); // Clear screen for a fresh menu display
-
+    UIUtils::clearScreen(); 
     string specialAbilityInfo = "";
+    if(menuCharacterType == "Warrior") specialAbilityInfo = R"(Warriors have a War Cry; when HP is low, damage doubles.)";
+    else if(menuCharacterType == "Wizard") specialAbilityInfo = R"(Wizards have Mystic Heal; regain HP/Armor on Light Attack.)";
+    else if(menuCharacterType == "Healer") specialAbilityInfo = R"(Healers: First Aid (HP/move), Chronic Abrasion (dmg boost).)";
+    else if(menuCharacterType == "Assassin") specialAbilityInfo = R"(Assassins have Sneaky Quick; first attacks of type deal extra.)";
 
-    if(menuCharacterType == "Warrior") {
-        specialAbilityInfo = R"(                      you do! Warriors have a War Cry; when your HP                    
-                      becomes 250 or lower, you deal double damage.                    )";
-    }
-    else if(menuCharacterType == "Wizard") {
-        specialAbilityInfo = R"(                      you do! Wizards have Mystic Heal; you receive                    
-                    50 HP and 10 armor points with every light attack.                 )";
-    }
-    else if(menuCharacterType == "Healer") {
-        specialAbilityInfo = R"(                 you do! Healers have 2, First Aid and Chronic Abrasion.               
-       You regain 10 HP with every move and deal 100% damage every other attack.       )";
-    }
-    else if(menuCharacterType == "Assassin") {
-        specialAbilityInfo = R"(                 you do! Assassins have Sneaky Quick; every first attack               
-                       deals double (because they strike twice).                       )";
-    }
-    
+
     if (player) {
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                    Know Your Hero!                                    |");
+        UIUtils::displayText("|---------------------------------------------------------------------------------------|");
         string playerBar = getHealthBarString(player->getName(), player->getCurrHealth(), player->getMaxHealth(), player->getCurrArmor(), player->getMaxArmor(), player->getLevel());
         string playerLine = "| " + playerBar;
-        size_t paddingNeeded = 0;
-        if (75 > playerBar.length()) {
-            paddingNeeded = 75 - playerBar.length();
+        // Padding for playerLine
+        string tempPlayerBar_bm1 = playerBar;
+        size_t pos_bm1 = 0;
+        while((pos_bm1 = tempPlayerBar_bm1.find("\033[", pos_bm1)) != string::npos) {
+            size_t endPos_bm1 = tempPlayerBar_bm1.find("m", pos_bm1);
+            if (endPos_bm1 != string::npos) { tempPlayerBar_bm1.erase(pos_bm1, endPos_bm1 - pos_bm1 + 1); } 
+            else { break; }
         }
-        playerLine.append(paddingNeeded, ' ');
-        playerLine += " |";
+        size_t paddingNeeded_bm1 = 0; if (75 > tempPlayerBar_bm1.length()) paddingNeeded_bm1 = 75 - tempPlayerBar_bm1.length();
+        playerLine.append(paddingNeeded_bm1, ' '); playerLine += "       |";
         UIUtils::displayText(playerLine);
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                 Before you go into battle, we thought you should know                 |");
-        UIUtils::displayText("|                your character's stats and abilities. It looks like you                |");
-        UIUtils::displayText("|                                 choose to be a " + menuCharacterType + "                                |");
-        if (menuCharacterType == "Warrior") {
-            UIUtils::displayText("|                          Great pick, very fast, very powerful.                        |");
-        } else if (menuCharacterType == "Wizard") {
-            UIUtils::displayText("|               Very useful for players that enjoy a strong ranged attack.              |");
-        } else if (menuCharacterType == "Healer") {
-            UIUtils::displayText("|                          Very quick, extremely high defense.                          |");
-        } else if (menuCharacterType == "Assassin") {
-            UIUtils::displayText("|                   Substitutes brute force for raw speed and agility.                  |");
+        
+        string specialLine = "| Special: " + specialAbilityInfo;
+        // Padding for specialLine
+        std::string tempSpecialInfo = specialAbilityInfo;
+        size_t pos_si = 0;
+        while((pos_si = tempSpecialInfo.find("\033[", pos_si)) != string::npos) { // Unlikely here but good practice
+            size_t endPos_si = tempSpecialInfo.find("m", pos_si);
+            if (endPos_si != string::npos) { tempSpecialInfo.erase(pos_si, endPos_si - pos_si + 1); } 
+            else { break; }
         }
-        UIUtils::displayText("|                  If you're wondering if you have any special abilites,                |");
-        UIUtils::displayText(specialAbilityInfo);
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
+        size_t specialPadding = 0; if (75 > (tempSpecialInfo.length() + 11) ) specialPadding = 75 - (tempSpecialInfo.length() + 11); // +11 for "| Special: " and " |"
+        specialLine.append(specialPadding, ' '); specialLine += "       |";
+        UIUtils::displayText(specialLine); 
         UIUtils::displayText("|                                Now it's time for battle!                              |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                                                               by PI   |");
         UIUtils::displayText("*---------------------------------------------------------------------------------------*");
-    } else {
-        UIUtils::displayText("Error: Invalid character type for BattleMenu1.");
-    }
-    
+    } else { UIUtils::displayText("Error: Player data not available for BattleMenu1."); }
     UIUtils::displayText("");
 }
 
@@ -327,8 +390,10 @@ void Menu::BattleMenu2(string menuCharacterType, Character* player) {
             paddingNeeded = 75 - playerBar.length();
         }
         playerLine.append(paddingNeeded, ' ');
-        playerLine += " |";
         UIUtils::displayText(playerLine);
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
+        UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|    *        *                  *        *                                           * |");
         UIUtils::displayText("|                 *  *   *    *        *        *               *                   *   |");
         UIUtils::displayText("|         *         *           *          *               *                            |");
@@ -457,6 +522,66 @@ void Menu::ViewCharactersMenu(string menuCharacterType) {
 }
 
 void Menu::BattleMenuSharedContent(Character* player, Enemy* enemy, const string& battleMessage) {
+    const int contentWidth = 75;
+
+    // --- Select and Display Dynamic Background & Enemy Sprite ---
+    vector<string> backdropArt;
+    vector<string> enemySprite = GENERIC_ENEMY_SPRITE; // Default sprite
+    string sceneColor = YELLOW; // Default color for backdrop elements
+
+    if (enemy) {
+        string enemyType = enemy->getCharacterType();
+        if (enemyType == "Warrior" || enemyType == "Goblin") { // Assuming Goblin is a type of warrior
+            backdropArt = FOREST_BACKDROP_ART; // Example
+            enemySprite = WARRIOR_ENEMY_SPRITE;
+            sceneColor = GREEN;
+        } else if (enemyType == "Wizard") {
+            backdropArt = CAVE_BACKDROP_ART; // Example
+            enemySprite = WIZARD_ENEMY_SPRITE;
+            sceneColor = DARK_GRAY;
+        } else if (enemyType == "Healer") { // Enemy healer might be in a sacred grove / ruins
+            backdropArt = FOREST_BACKDROP_ART; // Reuse for simplicity
+            // enemySprite = HEALER_ENEMY_SPRITE; // Define this sprite
+            sceneColor = GREEN;
+        } else if (enemyType == "Assassin") {
+             backdropArt = CAVE_BACKDROP_ART; // Dim, shadowy place
+            // enemySprite = ASSASSIN_ENEMY_SPRITE; // Define this sprite
+            sceneColor = DARK_GRAY;
+        } else { // Default
+            backdropArt = FOREST_BACKDROP_ART;
+        }
+    } else { // No enemy data, use a generic backdrop
+        backdropArt = ARENA_FLOOR_ART; // This one is wider, be careful
+    }
+
+    /*// Display background art (first few lines)
+    for (size_t i = 0; i < backdropArt.size() && i < 3; ++i) { // Display top 3 lines of backdrop
+        string line = "| " + centerPad(sceneColor + backdropArt[i] + RESET, contentWidth) + " |";
+        UIUtils::displayText(line);
+    }
+    
+    // Display enemy sprite (centered)
+    for (const std::string& spriteLine : enemySprite) {
+        std::string line = "| " + centerPad(RED + spriteLine + RESET, contentWidth) + " |"; // Enemy sprite in Red
+        UIUtils::displayText(line);
+    }
+
+    // Display rest of background/floor art
+    for (const string& floorLine : ARENA_FLOOR_ART) {
+        string line = string("| ") + BOLD + BROWN + floorLine.substr(0, std::min((size_t)contentWidth, floorLine.length())) + RESET;
+        // Pad the rest if floorLine is shorter than contentWidth
+        if (floorLine.length() < contentWidth) {
+            line.append(contentWidth - floorLine.length(), ' ');
+        }
+        line += string(BOLD) + BROWN + " |" + RESET;
+        UIUtils::displayText(line);
+    }
+    
+    /*UIUtils::displayText(string(BOLD) + CYAN + 
+        "|                                                                                       |" + RESET);*/ 
+
+
+
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
     UIUtils::displayText("|                                  Battle Status                                        |");
     UIUtils::displayText("|---------------------------------------------------------------------------------------|");
@@ -475,8 +600,8 @@ void Menu::BattleMenuSharedContent(Character* player, Enemy* enemy, const string
     size_t enemyPadding = 0;
      if (75 > enemyBarStr.length() +1) enemyPadding = 75 - (enemyBarStr.length() +1) ;
     enemyLine.append(enemyPadding , ' ');
-    enemyLine += "|";
     UIUtils::displayText(enemyLine);
+
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                                                                                       |");
     UIUtils::displayText("|                          *                         *                                  |");
@@ -491,8 +616,13 @@ void Menu::BattleMenuSharedContent(Character* player, Enemy* enemy, const string
     UIUtils::displayText("|         |            |             |             |             |            |         |");
     UIUtils::displayText("|   ______|____________|_____________|_____________|_____________|____________|______   |");
     UIUtils::displayText("|                                                                                       |");
-    UIUtils::displayText("|         " + battleMessage);
-    UIUtils::displayText("|                                                                               by PI   |");
+    // Battle Message
+    string formattedBattleMessage = "| " + battleMessage;
+    size_t messagePadding = 0;
+    if (contentWidth > battleMessage.length()) messagePadding = contentWidth - battleMessage.length();
+    formattedBattleMessage.append(messagePadding, ' ');
+    formattedBattleMessage += " |";
+    UIUtils::displayText(string(BOLD) + CYAN + formattedBattleMessage + RESET);
     UIUtils::displayText("*---------------------------------------------------------------------------------------*");
 }
 
@@ -609,7 +739,7 @@ void Menu::EndBattleMenu(bool result, int level) {
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                  Save Game (Yes/No)?                                  |");
+        UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
@@ -634,7 +764,7 @@ void Menu::EndBattleMenu(bool result, int level) {
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
-        UIUtils::displayText("|                                  Save Game (Yes/No)?                                  |");
+        UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
         UIUtils::displayText("|                                                                                       |");
